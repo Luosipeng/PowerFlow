@@ -20,9 +20,8 @@ function process_dcbranch_data(DC_impedance::DataFrame,
                              baseMVA::Float64)::Matrix{Float64}
     
     # 获取索引常量
-    (FBUS, TBUS, R, X, B, RATEA, RATEB, RATEC, RATIO, ANGLE, 
-    STATUS, ANGMIN, ANGMAX, DICTKEY, PF, QF, PT, QT, MU_SF,
-     MU_ST, MU_ANGMIN, MU_ANGMAX) = idx_brch()
+    (FBUS, TBUS, R, X, B, RATEA, RATEB, RATEC, RATIO, ANGLE, STATUS, ANGMIN,
+     ANGMAX, DICTKEY, PF, QF, PT, QT, MU_SF, MU_ST, MU_ANGMIN, MU_ANGMAX, LAMBDA, SW_TIME, RP_TIME, BR_TYPE, BR_AREA) = idx_brch()
     
     (DC_IMPEDANCE_ID, DC_IMPEDANCE_INSERVICE, DC_IMPEDANCE_F_ELEMENT,
      DC_IMPEDANCE_T_ELEMENT, DC_IMPEDANCE_R, DC_IMPEDANCE_L) = dcimp_idx()

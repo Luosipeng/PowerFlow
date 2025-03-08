@@ -13,12 +13,11 @@ function initialize_graph(bus::Matrix{Float64},
                         branch::Matrix{Float64}, 
                         HVCB_data::DataFrame)::SimpleGraph
     # 获取索引常量
-    (PQ, PV, REF, NONE, BUS_I, TYPE, PD, QD, GS, BS, AREA, VM,
-     VA, BASEKV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN) = idx_bus()
+    (PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM,VA, 
+    BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN, PER_CONSUMER) = idx_bus();
     
-     (FBUS, TBUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, TAP, SHIFT, 
-     STATUS, ANGMIN, ANGMAX, DICTKEY, PF, QF, PT, QT, MU_SF,
-      MU_ST, MU_ANGMIN, MU_ANGMAX) = idx_brch()
+    (FBUS, TBUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, TAP, SHIFT, STATUS, ANGMIN,
+    ANGMAX, DICTKEY, PF, QF, PT, QT, MU_SF, MU_ST, MU_ANGMIN, MU_ANGMAX, LAMBDA, SW_TIME, RP_TIME, BR_TYPE, BR_AREA) = idx_brch()
     
     (HVCB_ID, HVCB_FROM_ELEMENT, HVCB_TO_ELEMENT,
      HVCB_INSERVICE, HVCB_STATUS) = hvcb_idx()
@@ -59,8 +58,8 @@ end
 - Vector{Int}: 电源节点编号列表
 """
 function get_source_buses(bus::Matrix{Float64})::Vector{Int}
-    (PQ, PV, REF, NONE, BUS_I, TYPE, PD, QD, GS, BS, AREA, VM,
-     VA, BASEKV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN) = idx_bus()
+    (PQ, PV, REF, NONE, BUS_I, TYPE, PD, QD, GS, BS, BUS_AREA, VM,VA, 
+    BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN, PER_CONSUMER) = idx_bus();
     
     # 获取所有发电机节点(PV)和平衡节点(REF)
     source_buses = findall(x -> x in [PV, REF], bus[:, TYPE])
@@ -115,8 +114,8 @@ end
 """
 function remove_isolated_buses(bus::Matrix{Float64}, 
                              isolated_buses::Set{Int})::Matrix{Float64}
-    (PQ, PV, REF, NONE, BUS_I, TYPE, PD, QD, GS, BS, AREA, VM,
-     VA, BASEKV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN) = idx_bus()
+    (PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM,VA, 
+    BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN, PER_CONSUMER) = idx_bus();
     
     # 保留非孤岛节点
     remaining_rows = findall(x -> !(x in isolated_buses), bus[:, BUS_I])
@@ -194,8 +193,8 @@ function process_islands_by_source(bus::Matrix{Float64},
                                  HVCB_data::DataFrame,
                                  load::Matrix{Float64})::Tuple{Matrix{Float64}, Matrix{Float64}, DataFrame, Matrix{Float64}}
                                  
-    (PQ, PV, REF, NONE, BUS_I, TYPE, PD, QD, GS, BS, AREA, VM,
-    VA, BASEKV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN) = PowerFlow.idx_bus()
+    (PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM,VA, 
+    BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN, PER_CONSUMER) = idx_bus();
     # (HVCB_ID, HVCB_FROM_ELEMENT, HVCB_TO_ELEMENT,
     #  HVCB_INSERVICE, HVCB_STATUS) = hvcb_idx()
 

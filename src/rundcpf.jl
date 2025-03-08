@@ -9,14 +9,11 @@ function rundcpf(mpc, opt::Dict{String})
    # Step 2.1: Define the data structures
     # Define named indices into bus, gen, branch matrices
     (P, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM,
-    VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN) =  PowerFlow.idx_dcbus();
-    (F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, TAP, SHIFT, 
-    BR_STATUS, ANGMIN, ANGMAX, DICTKEY, PF, QF, PT, QT, MU_SF,
-     MU_ST, MU_ANGMIN, MU_ANGMAX) = idx_brch()
+    VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN,PER_CONSUMER) =  PowerFlow.idx_dcbus();
      (GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS, PMAX, PMIN, PC1,
      PC2, QC1MIN, QC1MAX, QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, 
      RAMP_Q, APF, PW_LINEAR, POLYNOMIAL, MODEL, STARTUP, SHUTDOWN, NCOST,
-      COST, MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN) = idx_gen();
+      COST, MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN,GEN_AREA) = idx_gen();
 
     # Step 2.2: Convert the data into the required format
     baseMVA = mpc["baseMVA"];

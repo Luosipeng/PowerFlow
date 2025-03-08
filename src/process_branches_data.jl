@@ -1,10 +1,9 @@
 function process_branches_data(cable_data::DataFrame, transline_data::DataFrame, impedance_data::DataFrame, transformer_data::DataFrame, HVCB_data::DataFrame, bus::Matrix{Float64}, baseMVA::Float64, baseKV::Float64, dict_bus)
     # --- Call indexing for IEEE branch data ---
-    (FBUS, TBUS, R, X, B, RATEA, RATEB, RATEC, RATIO, ANGLE, 
-    STATUS, ANGMIN, ANGMAX, DICTKEY, PF, QF, PT, QT, MU_SF,
-     MU_ST, MU_ANGMIN, MU_ANGMAX) = idx_brch()
-    (PQ, PV, REF, NONE, BUS_I, TYPE, PD, QD, GS, BS, AREA, VM,
-    VA, BASEKV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN)=PowerFlow.idx_bus()
+    (FBUS, TBUS, R, X, B, RATEA, RATEB, RATEC, RATIO, ANGLE, STATUS, ANGMIN,
+     ANGMAX, DICTKEY, PF, QF, PT, QT, MU_SF, MU_ST, MU_ANGMIN, MU_ANGMAX, LAMBDA, SW_TIME, RP_TIME, BR_TYPE, BR_AREA) = idx_brch()
+     (PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM,VA, 
+     BASEKV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN, PER_CONSUMER) = idx_bus();
     (Cable_EquipeID,Cable_inservice,Cable_Felement,Cable_Telement,Cable_length,Cable_r1,Cable_x1,Cable_y1,Cable_perunit_length_value)=PowerFlow.cable_idx()#线缆索引
     (Line_EquipmentID,Line_length,Line_inservice,Line_Felement,Line_Telement,Line_r11,Line_x1,Line_y1)=PowerFlow.xline_idx()#传输线索引
     (Trans_EquipmentID,Trans_inservice,Trans_Pelement,Trans_Selement,prisecrated_Power,Trans_Pvoltage,Trans_Svoltage,Trans_Pos_value,Trans_Pos_XRrating)=PowerFlow.XFORM2W_idx()#变压器索引

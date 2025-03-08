@@ -1,5 +1,1 @@
-Printf.jl
-SparseArrays.jl
-LinearAlgebra.jl
-PrettyTables.jl
-AMD.jl
+export JULIA_NUM_THREADS=8

@@ -71,8 +71,8 @@ end
 function assign_slack_buses(bus, utility_data, dict_bus)
 #Call bus indexing function
 (Utility_EquipmentID,Utility_connected_ID,Utility_Inservice,Utility_Voltage,Utility_control_mode)=utility_idx()#电网索引
-(PQ, PV, REF, NONE, BUS_I, TYPE, PD, QD, GS, BS, AREA, VM,
-VA, BASEKV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN)=idx_bus()
+(PQ, PV, REF, NONE, BUS_I, TYPE, PD, QD, GS, BS, BUS_AREA, VM,VA, 
+    BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN, PER_CONSUMER) = idx_bus();
 
 slack_index = findall(utility_data[:, Utility_control_mode] .== "Swing")
 slack_bus = map(k -> dict_bus[k], utility_data[slack_index, Utility_connected_ID])
@@ -82,8 +82,8 @@ end
 # Function to assign load data to buses
 function assign_load_data(bus, load_data, dict_bus)
 #Call bus indexing function
-(PQ, PV, REF, NONE, BUS_I, TYPE, PD, QD, GS, BS, AREA, VM,
-VA, BASEKV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN)=idx_bus()
+(PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM,VA, 
+    BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN, PER_CONSUMER) = idx_bus();
 (load_EquipmentID,ConectedID,load_inservice,load_kva,load_pf,load_type,Pload_percent)=load_idx()#负荷索引
 
 load_connected_bus = map(k -> dict_bus[k], load_data[:, ConectedID])  # Searching the connected bus ID

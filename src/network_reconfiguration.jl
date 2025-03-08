@@ -5,6 +5,7 @@ using SparseArrays
 using Random
 using LinearAlgebra
 using Printf
+using Base.Threads
 
 struct NetworkVariableIndices
     # Flow variables
@@ -75,8 +76,8 @@ end
 
 function network_reconfiguration(mpc::Dict{String, Any}, mg_buses::Vector{Int}, tie_lines::Vector{Int}, ζ::Vector{Float64}, Betamg::Vector{Int}; verbose::Bool=false)
     # Get PowerFlow indices
-    (PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM,
-    VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN) = PowerFlow.idx_bus()
+    (PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM,VA, 
+    BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN, PER_CONSUMER) = idx_bus();
     
     (F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, 
     TAP, SHIFT, BR_STATUS, PF, QF, PT, QT, MU_SF, MU_ST, 
@@ -85,7 +86,7 @@ function network_reconfiguration(mpc::Dict{String, Any}, mg_buses::Vector{Int}, 
     (GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS, PMAX, PMIN, PC1,
      PC2, QC1MIN, QC1MAX, QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, 
      RAMP_Q, APF, PW_LINEAR, POLYNOMIAL, MODEL, STARTUP, SHUTDOWN, NCOST,
-      COST, MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN) = PowerFlow.idx_gen();
+      COST, MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN,GEN_AREA) = PowerFlow.idx_gen();
 
     # Extract network data
     bus, gen, branch = mpc["bus"], mpc["gen"], mpc["branch"]
@@ -364,9 +365,8 @@ nmg = length(mg_buses)
 Betamg = Int.(ones(nmg))
 K = 5
 branch = mpc["branch"]
-(F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, 
-TAP, SHIFT, BR_STATUS, PF, QF, PT, QT, MU_SF, MU_ST, 
-ANGMIN, ANGMAX, MU_ANGMIN, MU_ANGMAX) = PowerFlow.idx_brch()
+(F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, TAP, SHIFT, BR_STATUS, ANGMIN,
+     ANGMAX, DICTKEY, PF, QF, PT, QT, MU_SF, MU_ST, MU_ANGMIN, MU_ANGMAX, LAMBDA, SW_TIME, RP_TIME, BR_TYPE, BR_AREA) = idx_brch()
 
 always_on_lines = findall(branch[:, BR_STATUS] .== 1);
 failed_lines = randperm(length(always_on_lines))[1:K];
@@ -377,8 +377,41 @@ tie_lines  =  findall(branch[:, BR_STATUS] .== 0);
 mpc_out, results = network_reconfiguration(mpc, mg_buses, tie_lines, ζ, Betamg; verbose = false)
 
 # Solve the power flow
-mpc_list, isolated = PowerFlow.extract_islands(mpc_out)
-results = @timed [PowerFlow.runpf(island, opt) for island in mpc_list]
+# mpc_list, isolated = PowerFlow.extract_islands(mpc)
+println("使用 $(Threads.nthreads()) 个线程进行计算")
+mpc_list, isolated = PowerFlow.dc_preprocess(mpc_out, opt)
+
+n_islands = length(mpc_list)
+println("共提取出 $(n_islands) 个孤岛")
+
+println("开始多线程潮流计算...")
+t_start = time()
+
+# 创建数组来存储每个岛屿的计算时间和线程ID
+results_array = Vector{Any}(undef, n_islands)
+island_times = zeros(n_islands)
+thread_ids = zeros(Int, n_islands)
+
+@threads for i in 1:n_islands
+    local_start = time()
+    thread_ids[i] = threadid()  # 记录当前线程ID
+    results_array[i] = PowerFlow.runpf(mpc_list[i], opt)
+    island_times[i] = time() - local_start
+end
+
+t_end = time()
+elapsed = t_end - t_start
+
+# 构造类似@timed返回的结果
+results = (value=results_array, time=elapsed)
+println("计算完成，总耗时: $(results.time) 秒")
+
+# 输出每个岛屿的计算时间和线程ID
+println("\n每个岛屿的计算详情:")
+for i in 1:n_islands
+    println("岛屿 $i: 线程 $(thread_ids[i]), 耗时 $(island_times[i]) 秒")
+end
+
 PowerFlow.process_result(results, isolated, "powerflow_report.txt")
 # @time results_pf = PowerFlow.runpf(mpc_out, opt)
 

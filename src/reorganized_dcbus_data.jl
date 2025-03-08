@@ -4,15 +4,14 @@ function assign_dcbus_data(DCbus::DataFrame,DC_lumpedload::DataFrame,Battery::Da
     (BATTERY_ID,BATTERY_INSERVICE,BATTERY_CONNECTED_BUS,BATTERY_CELLS,BATTERY_PACKS,BATTERY_STRINGS)=PowerFlow.battery_idx();
     (DCLOADID,DCLOADINSERVICE,DCLOADCONNECTEDBUS,DCLOADRATEDV,DCLOADKW)=PowerFlow.dcload_idx();
     (P, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM,VA,
-     BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN)=PowerFlow.idx_dcbus()
-     (FBUS, TBUS, R, X, B, RATEA, RATEB, RATEC, RATIO, ANGLE, 
-     BRSTATUS, ANGMIN, ANGMAX, DICTKEY, PF, QF, PT, QT, MU_SF,
-      MU_ST, MU_ANGMIN, MU_ANGMAX) = idx_brch()
+     BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN,PER_CONSUMER)=PowerFlow.idx_dcbus()
+     (FBUS, TBUS, R, X, B, RATEA, RATEB, RATEC, RATIO, ANGLE, BRSTATUS, ANGMIN,
+     ANGMAX, DICTKEY, PF, QF, PT, QT, MU_SF, MU_ST, MU_ANGMIN, MU_ANGMAX, LAMBDA, SW_TIME, RP_TIME, BR_TYPE, BR_AREA) = idx_brch()
      
      (GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, STATUS, PMAX, PMIN, PC1,
      PC2, QC1MIN, QC1MAX, QC2MIN, QC2MAX, RAMP_AGC, RAMP10, RAMP30, 
      RAMP_Q, APF, PW_LINEAR, POLYNOMIAL, MODEL, STARTUP, SHUTDOWN, NCOST,
-      COST, MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN) = idx_gen();
+      COST, MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN,GEN_AREA) = idx_gen();
       
     #Find inserviced  DC buses
     inservice=findall(DCbus[:,DCBUS_INSERVICE].=="true");
@@ -105,7 +104,7 @@ end
 function assign_v_dcbuses(busdc, battery_bus, Dict_busdc)
     #Call bus indexing function
     (P, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM,VA,
-     BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN)=PowerFlow.idx_dcbus()
+     BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN,PER_CONSUMER)=PowerFlow.idx_dcbus()
 
     V_index=Int64.(map(k->Dict_busdc[k],battery_bus))
     busdc[V_index,BUS_TYPE].=2
@@ -117,7 +116,7 @@ function assign_dcload_data(busdc,DC_lumpedload,Dict_busdc)
     #Call indexing function
     (DCLOADID,DCLOADINSERVICE,DCLOADCONNECTEDBUS,DCLOADRATEDV,DCLOADKW,DCLOADPERCENTP,DCLOADPERCENTZ)=PowerFlow.dcload_idx()
     (P, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM,VA,
-     BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN)=PowerFlow.idx_dcbus()
+     BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN,PER_CONSUMER)=PowerFlow.idx_dcbus()
     if !isempty(DC_lumpedload)
 
         #Find in-service DC loads
@@ -139,7 +138,7 @@ function process_dcload_data(bus, DC_lumpedload,Dict_busdc,Cr,P_inv_dc)
     (LOAD_I,LOAD_CND,LOAD_STATUS,LOAD_PD,LOAD_QD,LOADZ_PERCENT,LOADI_PERCENT,LOADP_PERCENT)=PowerFlow.idx_ld()
     (DCLOADID,DCLOADINSERVICE,DCLOADCONNECTEDBUS,DCLOADRATEDV,DCLOADKW,DCLOADPERCENTP,DCLOADPERCENTZ)=PowerFlow.dcload_idx()
     (P, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM,VA,
-     BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN)=PowerFlow.idx_dcbus()
+     BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN,PER_CONSUMER)=PowerFlow.idx_dcbus()
 
     if !isempty(DC_lumpedload)
 

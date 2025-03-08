@@ -26,8 +26,9 @@ function idx_bus()
     LAM_Q       = 15;   ## Lagrange multiplier on reactive power mismatch (u/MVAr)
     MU_VMAX     = 16;   ## Kuhn-Tucker multiplier on upper voltage limit (u/p.u.)
     MU_VMIN     = 17;   ## Kuhn-Tucker multiplier on lower voltage limit (u/p.u.)
+    PER_CONSUMER=18;    ## PER_CONSUMER, PER_CONSUMER
 
-return PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM,VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN
+return PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM,VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN, PER_CONSUMER
 end
 
 #-------------------------------------------------
@@ -59,7 +60,14 @@ function idx_brch()
     MU_ST       = 20;   ## Kuhn-Tucker multiplier on MVA limit at "to" bus (u/MVA)
     MU_ANGMIN   = 21;   ## Kuhn-Tucker multiplier lower angle difference limit (u/degree)
     MU_ANGMAX   = 22;   ## Kuhn-Tucker multiplier upper angle difference limit (u/degree)
-    return F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, TAP, SHIFT, BR_STATUS, ANGMIN, ANGMAX, DICTKEY, PF, QF, PT, QT, MU_SF, MU_ST, MU_ANGMIN, MU_ANGMAX
+    ##
+    LAMBDA      = 23;   ## Lagrange multiplier on real power mismatch at "from" bus (u/MW)
+    SW_TIME = 24;   ## time of last switch [s]
+    RP_TIME = 25;
+    BR_TYPE = 26;
+    BR_AREA = 27;
+
+    return F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, TAP, SHIFT, BR_STATUS, ANGMIN, ANGMAX, DICTKEY, PF, QF, PT, QT, MU_SF, MU_ST, MU_ANGMIN, MU_ANGMAX, LAMBDA, SW_TIME, RP_TIME, BR_TYPE, BR_AREA
 end
 
 #-------------------------------------------------
@@ -101,11 +109,12 @@ function idx_gen()
     MU_QMAX     = 29;   ## Kuhn-Tucker multiplier on upper Qg limit (u/MVAr)
     MU_QMIN     = 30;   ## Kuhn-Tucker multiplier on lower Qg limit (u/MVAr)
 
+    GEN_AREA = 31;
     ## Note: When a generator's PQ capability curve is not simply a box and the
     ## upper Qg limit is binding, the multiplier on this constraint is split into
     ## it's P and Q components and combined with the appropriate MU_Pxxx and
     ## MU_Qxxx values. Likewise for the lower Q limits.
-    return GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS, PMAX, PMIN, PC1, PC2, QC1MIN, QC1MAX, QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, RAMP_Q, APF, PW_LINEAR, POLYNOMIAL, MODEL, STARTUP, SHUTDOWN, NCOST, COST, MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN
+    return GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS, PMAX, PMIN, PC1, PC2, QC1MIN, QC1MAX, QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, RAMP_Q, APF, PW_LINEAR, POLYNOMIAL, MODEL, STARTUP, SHUTDOWN, NCOST, COST, MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN, GEN_AREA
 end
 
 #-------------------------------------------------
@@ -136,7 +145,8 @@ function idx_dcbus()
     LAM_Q       = 15;   ## Lagrange multiplier on reactive power mismatch (u/MVAr)
     MU_VMAX     = 16;   ## Kuhn-Tucker multiplier on upper voltage limit (u/p.u.)
     MU_VMIN     = 17;   ## Kuhn-Tucker multiplier on lower voltage limit (u/p.u.)
-    return P, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM,VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN
+    PER_CONSUMER = 18;    ## PER_CONSUMER, PER_CONSUMER
+    return P, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM,VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN,PER_CONSUMER
 end
 
 function idx_ld()
@@ -160,4 +170,36 @@ function idx_hvcb()
     HVCB_STATUS=5;
 
     return HVCB_ID,HVCB_FROM_ELEMENT,HVCB_TO_ELEMENT,HVCB_INSERVICE,HVCB_STATUS
+end
+
+function idx_microgrid()
+    MG_ID=1;
+    MG_CAPACITY=2;
+    MG_PEAK_LOAD=3;
+    MG_DURATION=4;
+    MG_AREA=5;
+    return MG_ID,MG_CAPACITY,MG_PEAK_LOAD,MG_DURATION,MG_AREA
+end
+
+function idx_pv()
+    PV_ID=1;
+    PV_CAPACITY=2;
+    PV_AREA=3;
+    return PV_ID,PV_CAPACITY,PV_AREA
+end
+
+function idx_ess()
+    ESS_ID=1;
+    ESS_POWER_CAPACITY=2;
+    ESS_ENERGY_CAPACITY=3;
+    ESS_AREA=4;
+    return ESS_ID,ESS_POWER_CAPACITY,ESS_ENERGY_CAPACITY,ESS_AREA
+end
+
+function idx_ev()
+    EV_ID=1;
+    EV_CAPACITY=2;
+    EV_FLEX_CAPACITY=3;
+    EV_AREA=4;
+    return EV_ID,EV_CAPACITY,EV_FLEX_CAPACITY,EV_AREA
 end

@@ -23,6 +23,7 @@ module PowerFlow
     using Graphs
     using DataStructures  
     using Dates
+    using Base.Threads
     # using KrylovPreconditioners
     # using different packages based on the operating system
     # ... 其他直接在 src 下的文件 ...
