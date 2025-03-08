@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>示例 · Power Flow Analysis</title><meta name="title" content="示例 · Power Flow Analysis"/><meta property="og:title" content="示例 · Power Flow Analysis"/><meta property="twitter:title" content="示例 · Power Flow Analysis"/><meta name="description" content="Documentation for Power Flow Analysis."/><meta property="og:description" content="Documentation for Power Flow Analysis."/><meta property="twitter:description" content="Documentation for Power Flow Analysis."/><script data-outdated-warner src="assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="assets/documenter.js"></script><script src="search_index.js"></script><script src="siteinfo.js"></script><script src="../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="index.html">Power Flow Analysis</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="index.html">首页</a></li><li><a class="tocitem" href="functions.html">函数说明</a></li><li><a class="tocitem" href="main.html">主程序说明</a></li><li class="is-active"><a class="tocitem" href="examples.html">示例</a><ul class="internal"><li><a class="tocitem" href="#1.-基本交流潮流计算"><span>1. 基本交流潮流计算</span></a></li><li><a class="tocitem" href="#2.-交直流混合系统计算"><span>2. 交直流混合系统计算</span></a></li><li><a class="tocitem" href="#3.-网络拓扑分析"><span>3. 网络拓扑分析</span></a></li><li><a class="tocitem" href="#4.-PV曲线分析"><span>4. PV曲线分析</span></a></li><li><a class="tocitem" href="#5.-高级应用示例"><span>5. 高级应用示例</span></a></li><li><a class="tocitem" href="#6.-数据导入导出示例"><span>6. 数据导入导出示例</span></a></li><li><a class="tocitem" href="#7.-错误处理示例"><span>7. 错误处理示例</span></a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href="examples.html">示例</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href="examples.html">示例</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/Matrixeigs/DistributionPowerFlow" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/Matrixeigs/DistributionPowerFlow/blob/master/docs/src/examples.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="使用示例"><a class="docs-heading-anchor" href="#使用示例">使用示例</a><a id="使用示例-1"></a><a class="docs-heading-anchor-permalink" href="#使用示例" title="Permalink"></a></h1><p>本文档提供了PowerFlow.jl的详细使用示例,涵盖了常见的应用场景。</p><h2 id="1.-基本交流潮流计算"><a class="docs-heading-anchor" href="#1.-基本交流潮流计算">1. 基本交流潮流计算</a><a id="1.-基本交流潮流计算-1"></a><a class="docs-heading-anchor-permalink" href="#1.-基本交流潮流计算" title="Permalink"></a></h2><h3 id="1.1-IEEE-14节点系统示例"><a class="docs-heading-anchor" href="#1.1-IEEE-14节点系统示例">1.1 IEEE 14节点系统示例</a><a id="1.1-IEEE-14节点系统示例-1"></a><a class="docs-heading-anchor-permalink" href="#1.1-IEEE-14节点系统示例" title="Permalink"></a></h3><pre><code class="language-julia hljs">using PowerFlow
+
+# 导入IEEE 14节点测试系统数据
+mpc = loadcase(&quot;ieee14&quot;)
+
+# 设置计算参数
+opt = PowerFlow.options()
+opt[&quot;PF&quot;][&quot;ALG&quot;] = &quot;NR&quot;          # 使用牛顿-拉夫森法
+opt[&quot;PF&quot;][&quot;TOL&quot;] = 1e-6          # 收敛容差
+opt[&quot;PF&quot;][&quot;MAX_IT&quot;] = 30         # 最大迭代次数
+
+# 执行潮流计算
+results = runpf(mpc, opt)
+
+# 显示计算结果
+println(&quot;母线电压:&quot;)
+display(results.bus[:, [1,2,3,4]])  # 显示母线编号、类型、电压幅值和相角
+
+println(&quot;\n支路功率流:&quot;)
+display(results.branch[:, [1,2,14,15]])  # 显示支路首末端功率</code></pre><h3 id="1.2-考虑无功功率限制"><a class="docs-heading-anchor" href="#1.2-考虑无功功率限制">1.2 考虑无功功率限制</a><a id="1.2-考虑无功功率限制-1"></a><a class="docs-heading-anchor-permalink" href="#1.2-考虑无功功率限制" title="Permalink"></a></h3><pre><code class="language-julia hljs"># 修改计算选项
+opt[&quot;PF&quot;][&quot;ENFORCE_Q_LIMS&quot;] = 1   # 启用无功功率限制
+opt[&quot;PF&quot;][&quot;Q_LIMIT_METHOD&quot;] = &quot;ITER&quot;  # 迭代法处理无功限制
+
+# 重新计算
+results_with_qlim = runpf(mpc, opt)
+
+# 检查发电机无功出力
+for i in 1:size(mpc[&quot;gen&quot;],1)
+    println(&quot;Generator $(Int(mpc[&quot;gen&quot;][i,1])) Q output: $(results_with_qlim.gen[i,3])&quot;)
+end</code></pre><h2 id="2.-交直流混合系统计算"><a class="docs-heading-anchor" href="#2.-交直流混合系统计算">2. 交直流混合系统计算</a><a id="2.-交直流混合系统计算-1"></a><a class="docs-heading-anchor-permalink" href="#2.-交直流混合系统计算" title="Permalink"></a></h2><h3 id="2.1-基本混合系统示例"><a class="docs-heading-anchor" href="#2.1-基本混合系统示例">2.1 基本混合系统示例</a><a id="2.1-基本混合系统示例-1"></a><a class="docs-heading-anchor-permalink" href="#2.1-基本混合系统示例" title="Permalink"></a></h3><pre><code class="language-julia hljs"># 导入交直流混合系统数据
+mpc_ac, mpc_dc = loadcase(&quot;hybrid_case&quot;)
+
+# 配置混合潮流计算选项
+opt = PowerFlow.options()
+opt[&quot;PF&quot;][&quot;HYBRID_MODE&quot;] = true
+opt[&quot;PF&quot;][&quot;DC_TOL&quot;] = 1e-4
+opt[&quot;PF&quot;][&quot;VSC_LOSS&quot;] = true     # 考虑换流器损耗
+
+# 执行混合潮流计算
+results = runhpf(mpc_ac, mpc_dc, opt)
+
+# 分析结果
+println(&quot;交流系统结果:&quot;)
+display(results.ac.bus)
+println(&quot;\n直流系统结果:&quot;)
+display(results.dc.bus)
+println(&quot;\n换流器运行状态:&quot;)
+display(results.converter)</code></pre><h3 id="2.2-多端直流系统"><a class="docs-heading-anchor" href="#2.2-多端直流系统">2.2 多端直流系统</a><a id="2.2-多端直流系统-1"></a><a class="docs-heading-anchor-permalink" href="#2.2-多端直流系统" title="Permalink"></a></h3><pre><code class="language-julia hljs"># 导入多端直流系统数据
+mtdc_case = loadcase(&quot;mtdc_test&quot;)
+
+# 设置多端直流计算选项
+opt[&quot;PF&quot;][&quot;MTDC_CONTROL&quot;] = &quot;VDM&quot;  # 电压下垂控制
+opt[&quot;PF&quot;][&quot;DROOP_CONST&quot;] = 0.05    # 下垂系数
+
+# 执行计算
+mtdc_results = runhpf(mtdc_case, opt)
+
+# 分析直流网络功率分布
+plot_dc_power_flow(mtdc_results)</code></pre><h2 id="3.-网络拓扑分析"><a class="docs-heading-anchor" href="#3.-网络拓扑分析">3. 网络拓扑分析</a><a id="3.-网络拓扑分析-1"></a><a class="docs-heading-anchor-permalink" href="#3.-网络拓扑分析" title="Permalink"></a></h2><h3 id="3.1-连通性分析"><a class="docs-heading-anchor" href="#3.1-连通性分析">3.1 连通性分析</a><a id="3.1-连通性分析-1"></a><a class="docs-heading-anchor-permalink" href="#3.1-连通性分析" title="Permalink"></a></h3><pre><code class="language-julia hljs"># 导入系统数据
+mpc = loadcase(&quot;test_system&quot;)
+
+# 分析网络连通性
+islands = find_islands(mpc)
+println(&quot;检测到 $(length(islands)) 个子网络&quot;)
+
+# 显示各子网络信息
+for (i, island) in enumerate(islands)
+    println(&quot;子网络 $i:&quot;)
+    println(&quot;节点数: $(length(island.buses))&quot;)
+    println(&quot;发电机数: $(length(island.gens))&quot;)
+end</code></pre><h3 id="3.2-关键支路识别"><a class="docs-heading-anchor" href="#3.2-关键支路识别">3.2 关键支路识别</a><a id="3.2-关键支路识别-1"></a><a class="docs-heading-anchor-permalink" href="#3.2-关键支路识别" title="Permalink"></a></h3><pre><code class="language-julia hljs"># 识别关键支路
+critical_branches = find_critical_branches(mpc)
+
+# 计算N-1可靠性
+n1_results = check_n1_security(mpc)
+
+# 显示薄弱环节
+println(&quot;关键支路:&quot;)
+for branch in critical_branches
+    println(&quot;支路 $(Int(branch[1]))-$(Int(branch[2]))&quot;)
+end</code></pre><h2 id="4.-PV曲线分析"><a class="docs-heading-anchor" href="#4.-PV曲线分析">4. PV曲线分析</a><a id="4.-PV曲线分析-1"></a><a class="docs-heading-anchor-permalink" href="#4.-PV曲线分析" title="Permalink"></a></h2><h3 id="4.1-单节点PV曲线"><a class="docs-heading-anchor" href="#4.1-单节点PV曲线">4.1 单节点PV曲线</a><a id="4.1-单节点PV曲线-1"></a><a class="docs-heading-anchor-permalink" href="#4.1-单节点PV曲线" title="Permalink"></a></h3><pre><code class="language-julia hljs"># 设置PV曲线计算参数
+pv_opt = PowerFlow.options()
+pv_opt[&quot;PV&quot;][&quot;BUS&quot;] = 5          # 研究节点
+pv_opt[&quot;PV&quot;][&quot;STEP&quot;] = 0.05      # 步长
+pv_opt[&quot;PV&quot;][&quot;MAX_LOAD&quot;] = 2.0   # 最大负荷倍数
+
+# 计算PV曲线
+pv_results = calc_pv_curve(mpc, pv_opt)
+
+# 绘制曲线
+plot_pv_curve(pv_results)</code></pre><h3 id="4.2-多节点电压稳定分析"><a class="docs-heading-anchor" href="#4.2-多节点电压稳定分析">4.2 多节点电压稳定分析</a><a id="4.2-多节点电压稳定分析-1"></a><a class="docs-heading-anchor-permalink" href="#4.2-多节点电压稳定分析" title="Permalink"></a></h3><pre><code class="language-julia hljs"># 设置多节点分析
+buses = [5, 7, 9]  # 待分析节点
+pv_opt[&quot;PV&quot;][&quot;MULTI_BUS&quot;] = buses
+
+# 执行分析
+multi_pv_results = calc_multi_pv_curves(mpc, pv_opt)
+
+# 绘制对比曲线
+plot_multi_pv_curves(multi_pv_results)</code></pre><h2 id="5.-高级应用示例"><a class="docs-heading-anchor" href="#5.-高级应用示例">5. 高级应用示例</a><a id="5.-高级应用示例-1"></a><a class="docs-heading-anchor-permalink" href="#5.-高级应用示例" title="Permalink"></a></h2><h3 id="5.1-GPU加速大规模计算"><a class="docs-heading-anchor" href="#5.1-GPU加速大规模计算">5.1 GPU加速大规模计算</a><a id="5.1-GPU加速大规模计算-1"></a><a class="docs-heading-anchor-permalink" href="#5.1-GPU加速大规模计算" title="Permalink"></a></h3><pre><code class="language-julia hljs">using CUDA
+
+# 准备大规模系统数据
+large_system = loadcase(&quot;case3120sp&quot;)
+
+# 配置GPU计算选项
+opt[&quot;PF&quot;][&quot;USE_GPU&quot;] = true
+opt[&quot;PF&quot;][&quot;GPU_BLOCK_SIZE&quot;] = 256
+
+# 执行GPU加速计算
+gpu_results = runpf(large_system, opt)
+
+# 对比CPU计算时间
+opt[&quot;PF&quot;][&quot;USE_GPU&quot;] = false
+cpu_results = runpf(large_system, opt)
+
+println(&quot;GPU计算时间: $(gpu_results.et) 秒&quot;)
+println(&quot;CPU计算时间: $(cpu_results.et) 秒&quot;)</code></pre><h3 id="5.2-自定义求解器应用"><a class="docs-heading-anchor" href="#5.2-自定义求解器应用">5.2 自定义求解器应用</a><a id="5.2-自定义求解器应用-1"></a><a class="docs-heading-anchor-permalink" href="#5.2-自定义求解器应用" title="Permalink"></a></h3><pre><code class="language-julia hljs"># 定义自定义求解器
+function my_custom_solver(Y, b, opt)
+    # 实现自定义求解算法
+    return solution
+end
+
+# 配置使用自定义求解器
+opt[&quot;PF&quot;][&quot;SOLVER&quot;] = my_custom_solver
+opt[&quot;PF&quot;][&quot;CUSTOM_SOLVER_PARAMS&quot;] = Dict(
+    &quot;param1&quot; =&gt; value1,
+    &quot;param2&quot; =&gt; value2
+)
+
+# 执行计算
+results = runpf(mpc, opt)</code></pre><h3 id="5.3-结果可视化"><a class="docs-heading-anchor" href="#5.3-结果可视化">5.3 结果可视化</a><a id="5.3-结果可视化-1"></a><a class="docs-heading-anchor-permalink" href="#5.3-结果可视化" title="Permalink"></a></h3><pre><code class="language-julia hljs"># 绘制网络拓扑图
+plot_network(mpc, results)
+
+# 电压分布热力图
+plot_voltage_heatmap(results)
+
+# 功率流向图
+plot_power_flow(results)
+
+# 导出交互式HTML报告
+generate_html_report(results, &quot;power_flow_report.html&quot;)</code></pre><h2 id="6.-数据导入导出示例"><a class="docs-heading-anchor" href="#6.-数据导入导出示例">6. 数据导入导出示例</a><a id="6.-数据导入导出示例-1"></a><a class="docs-heading-anchor-permalink" href="#6.-数据导入导出示例" title="Permalink"></a></h2><h3 id="6.1-从Excel导入数据"><a class="docs-heading-anchor" href="#6.1-从Excel导入数据">6.1 从Excel导入数据</a><a id="6.1-从Excel导入数据-1"></a><a class="docs-heading-anchor-permalink" href="#6.1-从Excel导入数据" title="Permalink"></a></h3><pre><code class="language-julia hljs"># 导入交流系统数据
+mpc_ac = Excel_to_IEEE_acdc(&quot;ac_system.xlsx&quot;)
+
+# 导入交直流混合系统数据
+mpc_hybrid = Excel_to_IEEE_acdc(&quot;ac_system.xlsx&quot;, &quot;dc_system.xlsx&quot;)</code></pre><h3 id="6.2-结果导出"><a class="docs-heading-anchor" href="#6.2-结果导出">6.2 结果导出</a><a id="6.2-结果导出-1"></a><a class="docs-heading-anchor-permalink" href="#6.2-结果导出" title="Permalink"></a></h3><pre><code class="language-julia hljs"># 导出到Excel
+export_results(results, &quot;results.xlsx&quot;)
+
+# 导出到CSV格式
+export_results(results, &quot;results.csv&quot;)
+
+# 导出到JSON格式
+export_results(results, &quot;results.json&quot;)</code></pre><h2 id="7.-错误处理示例"><a class="docs-heading-anchor" href="#7.-错误处理示例">7. 错误处理示例</a><a id="7.-错误处理示例-1"></a><a class="docs-heading-anchor-permalink" href="#7.-错误处理示例" title="Permalink"></a></h2><h3 id="7.1-异常处理"><a class="docs-heading-anchor" href="#7.1-异常处理">7.1 异常处理</a><a id="7.1-异常处理-1"></a><a class="docs-heading-anchor-permalink" href="#7.1-异常处理" title="Permalink"></a></h3><pre><code class="language-julia hljs">try
+    results = runpf(mpc, opt)
+catch e
+    if isa(e, ConvergenceError)
+        println(&quot;潮流计算不收敛&quot;)
+        # 尝试调整参数重新计算
+        opt[&quot;PF&quot;][&quot;MAX_IT&quot;] = 50
+        results = runpf(mpc, opt)
+    else
+        rethrow(e)
+    end
+end</code></pre><h3 id="7.2-警告处理"><a class="docs-heading-anchor" href="#7.2-警告处理">7.2 警告处理</a><a id="7.2-警告处理-1"></a><a class="docs-heading-anchor-permalink" href="#7.2-警告处理" title="Permalink"></a></h3><pre><code class="language-julia hljs"># 设置警告级别
+opt[&quot;VERBOSE&quot;] = 2
+
+# 启用警告日志
+opt[&quot;WARNING_LOG&quot;] = true
+
+# 执行计算
+results = runpf(mpc, opt)
+
+# 检查警告信息
+if !isempty(results.warnings)
+    println(&quot;计算过程中的警告:&quot;)
+    for warning in results.warnings
+        println(warning)
+    end
+end</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="main.html">« 主程序说明</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.8.1 on <span class="colophon-date" title="Saturday 15 February 2025 09:38">Saturday 15 February 2025</span>. Using Julia version 1.10.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
