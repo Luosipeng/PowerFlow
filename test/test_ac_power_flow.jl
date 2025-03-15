@@ -3,9 +3,9 @@
 """
 
 push!(LOAD_PATH, pwd()*"/src/")
-include(pwd()*"/data/case118.jl")
-include(pwd()*"/data/case33bw.jl")
-include(pwd()*"/data/case9.jl")
+# include(pwd()*"/data/case300.jl")
+# include(pwd()*"/data/case1888rte.jl")
+include(pwd()*"/data/case14.jl")
 
 using PowerFlow
 using MATLAB
@@ -14,11 +14,14 @@ using Base.Threads
 opt = PowerFlow.options() # The initial settings 
 opt["PF"]["NR_ALG"] = "bicgstab";
 opt["PF"]["ENFORCE_Q_LIMS"] = 0;
+# opt["PF"]["GPU_ACCELERATION"] = 1;
 opt["PF"]["DC_PREPROCESS"] = 1;
 #test find_islands and delete island
-# mpc = case9();
-mat"addpath('C:/Users/DELL/Desktop/matpower8.0/data')"
-mpc = mat"case1888rte"
+mpc = case14();
+# mat"addpath('C:/Users/13733/Desktop/matpower-8.0/data')"
+# mpc = mat"case300"
+# mpc = PowerFlow.runpf(mpc, opt)
+
 
 println("使用 $(Threads.nthreads()) 个线程进行计算")
 mpc_list, isolated = PowerFlow.dc_preprocess(mpc, opt)

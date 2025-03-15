@@ -1,18 +1,20 @@
 function int2ext(i2e::Vector{Int}, bus::Matrix{Float64}, gen::Matrix{Float64}, 
-    branch::Matrix{Float64}, areas::Union{Matrix{Float64},Nothing}=nothing)
+    branch::Matrix{Float64}, load::Matrix{Float64}, areas::Union{Matrix{Float64},Nothing}=nothing)
 # 定义常量索引
 BUS_I = 1
 GEN_BUS = 1
 F_BUS = 1
 T_BUS = 2
+LOAD_CND = 2
 
 # 转换母线编号
 bus[:, BUS_I] = i2e[Int.(bus[:, BUS_I])]
 gen[:, GEN_BUS] = i2e[Int.(gen[:, GEN_BUS])]
 branch[:, F_BUS] = i2e[Int.(branch[:, F_BUS])]
 branch[:, T_BUS] = i2e[Int.(branch[:, T_BUS])]
+load[:, LOAD_CND] = i2e[Int.(load[:, LOAD_CND])]
 
-return bus, gen, branch, areas
+return bus, gen, branch, load, areas
 end
 
 function int2ext(mpc::Dict)

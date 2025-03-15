@@ -49,7 +49,7 @@ function newtonpf(baseMVA,bus,gen,load, Ybus, V0, ref, pv, pq, tol0, max_it0, al
 
         # Compute update step
         # @time begin
-        dx, info = PowerFlow.mplinsolve(J, -F, alg)
+        dx, info = PowerFlow.julinsolve(J, -F, alg)
         
         # end
         #precision control
@@ -73,7 +73,7 @@ function newtonpf(baseMVA,bus,gen,load, Ybus, V0, ref, pv, pq, tol0, max_it0, al
         #Va = round.(Va, digits=6)
 
         # Evaluate F(x)
-        mis = V .* conj.(Ybus * V) - makeSbus(baseMVA, bus, gen, Vm, load)
+        mis = V .* conj.(Ybus * V) - PowerFlow.makeSbus(baseMVA, bus, gen, Vm, load)
         F = [real(mis[vcat(pv, pq)]); imag(mis[pq])]
 
         # Check for convergence

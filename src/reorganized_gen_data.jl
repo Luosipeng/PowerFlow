@@ -41,31 +41,38 @@ function initialize_generator_matrix(
 )::Matrix{Float64}
     # 获取索引
     Gen_connected_element, Gen_inservice, Gen_controlmode, Gen_power_rating,
-    Gen_apparent_power_rating, Gen_voltage = gen_idx()
+    Gen_apparent_power_rating, Gen_voltage = PowerFlow.gen_idx()
     
     # 获取发电机索引常量
-    idx_gen_constants = idx_gen()
+    idx_gen_constants = PowerFlow.idx_gen()
     GEN_BUS, PG, QG = idx_gen_constants[1:3]
     VG = idx_gen_constants[6]
     
     # 获取母线索引常量
-    bus_constants = idx_bus()
+    bus_constants = PowerFlow.idx_bus()
     BASEKV = bus_constants[14]
     
     # 初始化基础矩阵
     gen = initialize_base_generator_matrix(size(gen_data, 1), idx_gen_constants)
     
     # 更新总线编号
-    bus_indices = map(k -> dict_bus[k], gen_data[:, Gen_connected_element])
-    gen[:, GEN_BUS] .= bus_indices
+    if !isempty(gen_data)
+        bus_indices = map(k -> dict_bus[k], gen_data[:, Gen_connected_element])
+        gen[:, GEN_BUS] .= bus_indices
+        # 设置功率相关参数
+        gen[:, PG] .= gen_data[:, Gen_power_rating]
+        gen[:, QG] .= @. sqrt(gen_data[:, Gen_apparent_power_rating]^2 - gen_data[:, Gen_power_rating]^2)
+        
+        # 设置电压
+        base_kv = bus[map(k -> dict_bus[k], gen_data[:, Gen_connected_element]), BASEKV]
+        gen[:, VG] .= gen_data[:, Gen_voltage] ./ base_kv
+    else
+        gen = zeros(0, 26)
+    end
+    # bus_indices = map(k -> dict_bus[k], gen_data[:, Gen_connected_element])
+    # gen[:, GEN_BUS] .= bus_indices
     
-    # 设置功率相关参数
-    gen[:, PG] .= gen_data[:, Gen_power_rating]
-    gen[:, QG] .= @. sqrt(gen_data[:, Gen_apparent_power_rating]^2 - gen_data[:, Gen_power_rating]^2)
     
-    # 设置电压
-    base_kv = bus[map(k -> dict_bus[k], gen_data[:, Gen_connected_element]), BASEKV]
-    gen[:, VG] .= gen_data[:, Gen_voltage] ./ base_kv
     
     return gen
 end
@@ -75,7 +82,7 @@ function initialize_utility_generator_matrix(
     dict_bus::Dict
 )::Matrix{Float64}
     # 获取索引
-    (Utility_EquipmentID,Utility_connected_ID,Utility_Inservice,Utility_Voltage,Utility_control_mode)=utility_idx()#电网索引
+    (Utility_EquipmentID,Utility_connected_ID,Utility_Inservice,Utility_Voltage,Utility_control_mode)=PowerFlow.utility_idx()#电网索引
     
     # 获取发电机索引常量
     idx_gen_constants = idx_gen()

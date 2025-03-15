@@ -3,17 +3,18 @@ function process_load_data(Load_data::DataFrame, bus::Matrix{Float64}, dict_bus:
     (load_EquipmentID,ConectedID,load_inservice,load_kva,load_pf,load_type,Pload_percent)=PowerFlow.load_idx()#负荷索引
     (LOAD_I,LOAD_CND,LOAD_STATUS,LOAD_PD,LOAD_QD,LOADZ_PERCENT,LOADI_PERCENT,LOADP_PERCENT)=PowerFlow.idx_ld()
     (PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM,VA, 
-    BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN, PER_CONSUMER) = idx_bus();
+    BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN, PER_CONSUMER) = PowerFlow.idx_bus();
     #创建负载矩阵
+    Load_data=filter(row -> row[ConectedID] !== missing, Load_data)
     load=zeros(size(Load_data,1),8)
     load[:,LOAD_I]=eachindex(load[:,LOAD_I])
     load[:,LOAD_CND]=map(x->dict_bus[x],Load_data[:,ConectedID])
-    load[:,LOAD_STATUS]=(Load_data[:,load_inservice].=="Yes").+0
-    load[:,LOAD_PD]=(Load_data[:,load_kva].*parse.(Float64,Load_data[:,load_pf])./100)./1000
-    load[:,LOAD_QD]=Load_data[:,load_kva].*sqrt.(1 .-(parse.(Float64,Load_data[:,load_pf])./100).^2)./1000
-    load[:,LOADZ_PERCENT]=1 .-Load_data[:,Pload_percent]./100
+    load[:,LOAD_STATUS]=(Load_data[:,load_inservice].=="true").+0
+    load[:,LOAD_PD]=(parse.(Float64,Load_data[:,load_kva]).*parse.(Float64,Load_data[:,load_pf])./100)./1000
+    load[:,LOAD_QD]=parse.(Float64,Load_data[:,load_kva]).*sqrt.(1 .-(parse.(Float64,Load_data[:,load_pf])./100).^2)./1000
+    load[:,LOADZ_PERCENT]=1 .-parse.(Float64,Load_data[:,Pload_percent])./100
     load[:,LOADI_PERCENT].=0
-    load[:,LOADP_PERCENT]=Load_data[:,Pload_percent]./100
+    load[:,LOADP_PERCENT]=parse.(Float64,Load_data[:,Pload_percent])./100
 
     #处理逆变器传输功率
     if P_inv!==nothing

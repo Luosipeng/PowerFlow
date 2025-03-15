@@ -13,7 +13,7 @@ function rundcpf(mpc, opt::Dict{String})
      (GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS, PMAX, PMIN, PC1,
      PC2, QC1MIN, QC1MAX, QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, 
      RAMP_Q, APF, PW_LINEAR, POLYNOMIAL, MODEL, STARTUP, SHUTDOWN, NCOST,
-      COST, MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN,GEN_AREA) = idx_gen();
+      COST, MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN,GEN_AREA) = PowerFlow.idx_gen();
 
     # Step 2.2: Convert the data into the required format
     baseMVA = mpc["baseMVA"];
@@ -21,10 +21,11 @@ function rundcpf(mpc, opt::Dict{String})
     gen = mpc["gen"];
     branch = mpc["branch"];   
     load = mpc["load"];
+    success = false;
     # convert the external data to internal data 
-    (bus, gen, branch,i2e) = ext2int(bus, gen, branch);
+    (bus, gen, branch, load,i2e) = PowerFlow.ext2int(bus, gen, branch, load);
     ## get bus index lists of each type of bus
-    (ref, p) = dcbustypes(bus, gen);
+    (ref, p) = PowerFlow.dcbustypes(bus, gen);
     ## generator info
     on = findall(gen[:, GEN_STATUS] .> 0)  # which generators are on?
     gbus = gen[on, GEN_BUS]  # what buses are they at?
@@ -35,23 +36,23 @@ function rundcpf(mpc, opt::Dict{String})
     ## initialize
     V0  = bus[:, VM]
     ## build admittance matrices
-    (Ybus, Yf, Yt) = makeYbus(baseMVA, bus, branch)
+    (Ybus, Yf, Yt) = PowerFlow.makeYbus(baseMVA, bus, branch)
     repeat=1;
     while (repeat>0)
         ## function for computing V dependent complex bus power injections
-        ## (generation - load)
-        Sbus = Vm -> makeSbus(baseMVA, bus, gen, Vm, load);
         if alg == "NR"
-            V, success, iterations = newtondcpf(Ybus, Sbus, V0, ref, p, opt["PF"]["PF_TOL"], opt["PF"]["PF_MAX_IT"], opt["PF"]["NR_ALG"]);
+            V, success, iterations = newtondcpf(baseMVA, bus, gen, load, Ybus, V0, ref, p, opt["PF"]["PF_TOL"], opt["PF"]["PF_MAX_IT"], opt["PF"]["NR_ALG"]);
             its += iterations;
         end
         bus, gen, branch = dcpfsoln(baseMVA, bus, gen, branch, load, Ybus, Yf, Yt, V, ref, p)
         repeat = 0;
     end
-    bus, gen, branch, areas=PowerFlow.int2ext(i2e,bus,gen,branch)
+    bus, gen, branch, load, areas=PowerFlow.int2ext(i2e, bus, gen, branch, load)
     mpc["bus"] = bus
     mpc["gen"] = gen
     mpc["branch"] = branch
+    mpc["load"] = load
     mpc["iterations"] = its
+    mpc["success"] = success
     return mpc
 end

@@ -14,8 +14,6 @@ module PowerFlow
     using KrylovKit
     using Krylov
     using LinearOperators
-    # using CUDA.CUSPARSE
-    # using CUDA
     # using AlgebraicMultigrid
     using XLSX
     using DataFrames
@@ -24,6 +22,8 @@ module PowerFlow
     using DataStructures  
     using Dates
     using Base.Threads
+
+    using Plots
     # using KrylovPreconditioners
     # using different packages based on the operating system
     # ... 其他直接在 src 下的文件 ...
@@ -34,7 +34,7 @@ module PowerFlow
     include(joinpath(@__DIR__,"newtonpf.jl"))
     include(joinpath(@__DIR__,"makeSbus.jl"))
     include(joinpath(@__DIR__,"makeSdzip.jl"))
-    include(joinpath(@__DIR__,"mplinsolve.jl"))
+    include(joinpath(@__DIR__,"julinsolve.jl"))
     include(joinpath(@__DIR__,"total_load.jl"))
     include(joinpath(@__DIR__,"pfsoln.jl"))
     include(joinpath(@__DIR__,"dSbus_dV.jl"))
@@ -57,7 +57,6 @@ module PowerFlow
     include(joinpath(@__DIR__,"dcbustypes.jl"))
     include(joinpath(@__DIR__,"newtondcpf.jl"))
     include(joinpath(@__DIR__,"dcpfsoln.jl"))
-    include(joinpath(@__DIR__,"extract_dcdata.jl"))
     include(joinpath(@__DIR__,"process_inverter_data.jl"))
     include(joinpath(@__DIR__,"reorganized_dcbus_data.jl"))
     include(joinpath(@__DIR__,"process_dcbranch_data.jl"))
@@ -69,6 +68,7 @@ module PowerFlow
     include(joinpath(@__DIR__,"extract_island.jl"))
     include(joinpath(@__DIR__,"merge_results.jl"))
     include(joinpath(@__DIR__,"process_result.jl"))
+    include(joinpath(@__DIR__,"process_charger_data.jl"))
     # ... 其他 models 目录下的文件 ...
     include(joinpath(dirname(@__DIR__), "models","bus_idx.jl"))
     include(joinpath(dirname(@__DIR__), "models","gen_idx.jl"))
@@ -84,15 +84,16 @@ module PowerFlow
     include(joinpath(dirname(@__DIR__), "models","dcbus_idx.jl"))
     include(joinpath(dirname(@__DIR__), "models","battery_idx.jl"))
     include(joinpath(dirname(@__DIR__), "models","dcload_idx.jl"))
+    include(joinpath(dirname(@__DIR__), "models","charger_idx.jl"))
+    include(joinpath(dirname(@__DIR__), "models","dccable_idx.jl"))
     # ... 其他 test 目录下的文件 ...
-    include(joinpath(dirname(@__DIR__), "test","setloadprops.jl"))
-    include(joinpath(dirname(@__DIR__), "test","setproploop.jl"))
-    include(joinpath(dirname(@__DIR__), "test","modelingexamine.jl"))
+ 
+    include(joinpath(dirname(@__DIR__), "test","ac_element_validate.jl"))
+    include(joinpath(dirname(@__DIR__), "test","dc_element_validate.jl"))
+    include(joinpath(dirname(@__DIR__), "test","acdc_power_flow_compared.jl"))
+    include(joinpath(dirname(@__DIR__), "test","ac_power_flow_compared.jl"))
     # include(joinpath(dirname(@__DIR__), "test","modelingexamine.jl"))
-    include(joinpath(dirname(@__DIR__), "test","resultcompare.jl"))
-    include(joinpath(dirname(@__DIR__), "test", "loadflow_result_ETAP.jl"))
     include(joinpath(dirname(@__DIR__), "test","converge_judge.jl"))
-    include(joinpath(dirname(@__DIR__), "test","acdccompare.jl"))
     # ... 其他 ios 目录下的文件 ...
     include(joinpath(dirname(@__DIR__), "ios","excel2jpc.jl"))
     # ... 其他 data 目录下的文件 ...

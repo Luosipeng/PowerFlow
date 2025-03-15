@@ -11,9 +11,9 @@ function runpf(mpc, opt::Dict{String})
     # Step 2.1: Define the data structures
     # Define named indices into bus, gen, branch matrices
     (PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM,VA, 
-    BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN, PER_CONSUMER) = idx_bus();
+    BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN, PER_CONSUMER) = PowerFlow.idx_bus();
     (F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, TAP, SHIFT, BR_STATUS, ANGMIN,
-    ANGMAX, DICTKEY, PF, QF, PT, QT, MU_SF, MU_ST, MU_ANGMIN, MU_ANGMAX, LAMBDA, SW_TIME, RP_TIME, BR_TYPE, BR_AREA) = idx_brch()
+    ANGMAX, DICTKEY, PF, QF, PT, QT, MU_SF, MU_ST, MU_ANGMIN, MU_ANGMAX, LAMBDA, SW_TIME, RP_TIME, BR_TYPE, BR_AREA) = PowerFlow.idx_brch()
          (GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS, PMAX, PMIN, PC1,
          PC2, QC1MIN, QC1MAX, QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, 
          RAMP_Q, APF, PW_LINEAR, POLYNOMIAL, MODEL, STARTUP, SHUTDOWN, NCOST,
@@ -24,6 +24,7 @@ function runpf(mpc, opt::Dict{String})
     # options
     qlim = opt["PF"]["ENFORCE_Q_LIMS"];         ## enforce Q limits on gens?
     dc = opt["PF"]["DC"];  ## use DC formulation?  
+    gpu_flag = opt["PF"]["GPU_ACCELERATION"];  ## use GPU acceleration?
     baseMVA = mpc["baseMVA"];
     bus =  mpc["bus"];
     gen = mpc["gen"];
@@ -32,7 +33,7 @@ function runpf(mpc, opt::Dict{String})
     if load === nothing || isempty(load)
         load = zeros(size(bus, 1), 8)
         load[:, LOAD_I] = collect(1:size(bus, 1))
-        load[:, LOAD_CND] = collect(1:size(bus, 1))
+        load[:, LOAD_CND] = bus[:, BUS_I]
         load[:, LOAD_STATUS] .= 1
         load[:, LOAD_PD] .= bus[:, PD]
         load[:, LOAD_QD] .= bus[:, QD]
@@ -42,7 +43,7 @@ function runpf(mpc, opt::Dict{String})
     end
     success = false;
     # convert the external data to internal data 
-    (bus, gen, branch,i2e) = PowerFlow.ext2int(bus, gen, branch);
+    (bus, gen, branch, load, i2e) = PowerFlow.ext2int(bus, gen, branch, load);
     ## get bus index lists of each type of bus
     (ref, pv, pq) = PowerFlow.bustypes(bus, gen);
     ## generator info
@@ -190,10 +191,11 @@ function runpf(mpc, opt::Dict{String})
         mpc["success"] = success
         ## -----output results-----
         ## convert back to original bus numbering & print results
-        bus, gen, branch, areas=PowerFlow.int2ext(i2e,bus,gen,branch)
+        bus, gen, branch, load, areas=PowerFlow.int2ext(i2e, bus, gen, branch, load)
         mpc["bus"] = bus
         mpc["gen"] = gen
         mpc["branch"] = branch
+        mpc["load"] = load
     
     return mpc
 end

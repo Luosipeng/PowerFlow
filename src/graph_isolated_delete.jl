@@ -14,13 +14,13 @@ function initialize_graph(bus::Matrix{Float64},
                         HVCB_data::DataFrame)::SimpleGraph
     # 获取索引常量
     (PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM,VA, 
-    BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN, PER_CONSUMER) = idx_bus();
+    BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN, PER_CONSUMER) = PowerFlow.idx_bus();
     
     (FBUS, TBUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, TAP, SHIFT, STATUS, ANGMIN,
-    ANGMAX, DICTKEY, PF, QF, PT, QT, MU_SF, MU_ST, MU_ANGMIN, MU_ANGMAX, LAMBDA, SW_TIME, RP_TIME, BR_TYPE, BR_AREA) = idx_brch()
+    ANGMAX, DICTKEY, PF, QF, PT, QT, MU_SF, MU_ST, MU_ANGMIN, MU_ANGMAX, LAMBDA, SW_TIME, RP_TIME, BR_TYPE, BR_AREA) = PowerFlow.idx_brch()
     
     (HVCB_ID, HVCB_FROM_ELEMENT, HVCB_TO_ELEMENT,
-     HVCB_INSERVICE, HVCB_STATUS) = hvcb_idx()
+     HVCB_INSERVICE, HVCB_STATUS) = PowerFlow.hvcb_idx()
 
     # 创建无向图
     g = SimpleGraph(size(bus, 1))
@@ -34,11 +34,11 @@ function initialize_graph(bus::Matrix{Float64},
     end
     
      # 添加闭合断路器的边
-    for row in eachrow(HVCB_data)
+     for row in eachrow(HVCB_data)
         # 检查断路器状态和运行状态
-        is_closed = uppercase(string(row[HVCB_STATUS])) == "CLOSED"
-        is_inservice = uppercase(string(row[HVCB_INSERVICE])) == "YES"
-
+        is_closed = uppercase(string(row[HVCB_STATUS])) == "CLOSED"  # 全大写比较
+        is_inservice = uppercase(string(row[HVCB_INSERVICE])) == "TRUE"  # 全大写比较
+    
         if is_closed && is_inservice
             add_edge!(g, Int(row[HVCB_FROM_ELEMENT]), 
                      Int(row[HVCB_TO_ELEMENT]))
@@ -194,7 +194,7 @@ function process_islands_by_source(bus::Matrix{Float64},
                                  load::Matrix{Float64})::Tuple{Matrix{Float64}, Matrix{Float64}, DataFrame, Matrix{Float64}}
                                  
     (PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM,VA, 
-    BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN, PER_CONSUMER) = idx_bus();
+    BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN, PER_CONSUMER) = PowerFlow.idx_bus();
     # (HVCB_ID, HVCB_FROM_ELEMENT, HVCB_TO_ELEMENT,
     #  HVCB_INSERVICE, HVCB_STATUS) = hvcb_idx()
 

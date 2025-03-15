@@ -1,4 +1,4 @@
-function assign_dcbus_data(DCbus::DataFrame,DC_lumpedload::DataFrame,Battery::DataFrame,Cr::Vector{Any},P_inv_dc::Vector{Float64},baseMVA::Float64)
+function assign_dcbus_data(DCbus::DataFrame,DC_lumpedload::DataFrame,Battery::DataFrame,Cr::Vector,P_inv_dc::Vector{Float64},baseMVA::Float64)
     #Call indexing function 
     (DCBUS_ID,DCBUS_V,DCBUS_INSERVICE)=PowerFlow.dcbus_idx();
     (BATTERY_ID,BATTERY_INSERVICE,BATTERY_CONNECTED_BUS,BATTERY_CELLS,BATTERY_PACKS,BATTERY_STRINGS)=PowerFlow.battery_idx();
@@ -6,34 +6,44 @@ function assign_dcbus_data(DCbus::DataFrame,DC_lumpedload::DataFrame,Battery::Da
     (P, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM,VA,
      BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN,PER_CONSUMER)=PowerFlow.idx_dcbus()
      (FBUS, TBUS, R, X, B, RATEA, RATEB, RATEC, RATIO, ANGLE, BRSTATUS, ANGMIN,
-     ANGMAX, DICTKEY, PF, QF, PT, QT, MU_SF, MU_ST, MU_ANGMIN, MU_ANGMAX, LAMBDA, SW_TIME, RP_TIME, BR_TYPE, BR_AREA) = idx_brch()
+     ANGMAX, DICTKEY, PF, QF, PT, QT, MU_SF, MU_ST, MU_ANGMIN, MU_ANGMAX, LAMBDA, SW_TIME, RP_TIME, BR_TYPE, BR_AREA) = PowerFlow.idx_brch()
      
      (GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, STATUS, PMAX, PMIN, PC1,
      PC2, QC1MIN, QC1MAX, QC2MIN, QC2MAX, RAMP_AGC, RAMP10, RAMP30, 
      RAMP_Q, APF, PW_LINEAR, POLYNOMIAL, MODEL, STARTUP, SHUTDOWN, NCOST,
-      COST, MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN,GEN_AREA) = idx_gen();
+      COST, MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN,GEN_AREA) = PowerFlow.idx_gen();
       
     #Find inserviced  DC buses
     inservice=findall(DCbus[:,DCBUS_INSERVICE].=="true");
 
     #Expand the DC bus data using the battery data
     #Battery can be divided into a impedance and a voltage source
-    battery_inserviced=findall(Battery[:,BATTERY_INSERVICE].=="true");
-    Battery=Battery[battery_inserviced,:];
-    """
-    Default battery configuation:Rp=0.0025,Vpc=2.06,plates=5
-    """
-    Rp=0.0025
-    Vpc=2.06
-    plates=5
-    Voc=Vpc*parse.(Float64,Battery[:,BATTERY_CELLS]).*parse.(Float64,Battery[:,BATTERY_PACKS])
-    Vb=Voc
-    r=2*Rp/plates*parse.(Float64,Battery[:,BATTERY_CELLS]).*parse.(Float64,Battery[:,BATTERY_PACKS])./parse.(Float64,Battery[:,BATTERY_STRINGS])
-    battery_branches=zeros(length(battery_inserviced),14)
+
+    if !isempty(Battery)
+        battery_inserviced=findall(Battery[:,BATTERY_INSERVICE].=="true");
+        Battery=Battery[battery_inserviced,:];
+        """
+        Default battery configuation:Rp=0.0025,Vpc=2.06,plates=5
+        """
+        Rp=0.0025
+        Vpc=2.06
+        plates=5
+        Voc=Vpc*parse.(Float64,Battery[:,BATTERY_CELLS]).*parse.(Float64,Battery[:,BATTERY_PACKS])
+        Vb=Voc
+        # r=2*Rp/plates*parse.(Float64,Battery[:,BATTERY_CELLS]).*parse.(Float64,Battery[:,BATTERY_PACKS])./parse.(Float64,Battery[:,BATTERY_STRINGS])
+        r=0.0245
+        battery_branches=zeros(length(battery_inserviced),14)
     
 
-    #Create the battery bus
-    battery_bus = [string("Bus_b", i) for i in 1:length(battery_inserviced)]
+        #Create the battery bus
+        battery_bus = [string("Bus_b", i) for i in 1:length(battery_inserviced)]
+    else
+        battery_inserviced=Int[]
+        battery_bus=String[]
+        battery_branches=zeros(0,14)
+        Vb=[]
+        r=0
+    end
     busdc=zeros(length(vcat(inservice,battery_inserviced)),13)
     busdc[:,BUS_I].=1:length(vcat(inservice,battery_inserviced)); #Assign new ID for all DC buses
     Dict_busdc=Dict(zip(vcat(DCbus[:,DCBUS_ID],battery_bus[:]),busdc[:,BUS_I]))
@@ -41,7 +51,9 @@ function assign_dcbus_data(DCbus::DataFrame,DC_lumpedload::DataFrame,Battery::Da
     #Assign P buses (type 1)
     busdc[:,BUS_TYPE].=1
     #Assign V buses (type 2)
-    assign_v_dcbuses(busdc,battery_bus,Dict_busdc)
+    if !isempty(battery_bus)
+        assign_v_dcbuses(busdc,battery_bus,Dict_busdc)
+    end
 
     #Assign load data to buses
     assign_dcload_data(busdc,DC_lumpedload,Dict_busdc)
@@ -58,43 +70,48 @@ function assign_dcbus_data(DCbus::DataFrame,DC_lumpedload::DataFrame,Battery::Da
     busdc[:, VMAX] .= 1.05
     busdc[:, VMIN] .= 0.8
 
-    battery_branches[:,FBUS].=busdc[Int64.(map(k->Dict_busdc[k],battery_bus)),BUS_I]
-    battery_branches[:,TBUS].=busdc[Int64.(map(k->Dict_busdc[k],Battery[:,BATTERY_CONNECTED_BUS])),BUS_I]
-    battery_branches[:,R].=r*baseMVA/((0.001*parse(Float64,DCbus[1,DCBUS_V]))^2)
-    battery_branches[:,X].=0
-    battery_branches[:,B].=0
-    battery_branches[:,RATEA].=100
-    battery_branches[:,RATEB].=100
-    battery_branches[:,RATEC].=100
-    battery_branches[:,RATIO].=0
-    battery_branches[:,ANGLE].=0
-    battery_branches[:,BRSTATUS].=1
-    battery_branches[:,ANGMIN].=-180
-    battery_branches[:,ANGMAX].=180
+    if !isempty(battery_bus)
+        battery_branches[:,FBUS].=busdc[Int64.(map(k->Dict_busdc[k],battery_bus)),BUS_I]
+        battery_branches[:,TBUS].=busdc[Int64.(map(k->Dict_busdc[k],Battery[:,BATTERY_CONNECTED_BUS])),BUS_I]
+        battery_branches[:,R].=r*baseMVA/((0.001*parse(Float64,DCbus[1,DCBUS_V]))^2)
+        battery_branches[:,X].=0
+        battery_branches[:,B].=0
+        battery_branches[:,RATEA].=100
+        battery_branches[:,RATEB].=100
+        battery_branches[:,RATEC].=100
+        battery_branches[:,RATIO].=0
+        battery_branches[:,ANGLE].=0
+        battery_branches[:,BRSTATUS].=1
+        battery_branches[:,ANGMIN].=-180
+        battery_branches[:,ANGMAX].=180
 
-    #Create a battery generator
-    battery_gen=zeros(length(battery_inserviced),21)
-    battery_gen[:,GEN_BUS].=busdc[Int64.(map(k->Dict_busdc[k],battery_bus)),BUS_I]
-    battery_gen[:,PG].=0
-    battery_gen[:,QG].=0
-    battery_gen[:,QMAX].=300
-    battery_gen[:,QMIN].=-300
-    battery_gen[:,VG].=1
-    battery_gen[:,MBASE].=100
-    battery_gen[:,STATUS].=1
-    battery_gen[:,PMAX].=250
-    battery_gen[:,PMIN].=10
-    battery_gen[:,PC1].=0
-    battery_gen[:,PC2].=0
-    battery_gen[:,QC1MIN].=0
-    battery_gen[:,QC1MAX].=0
-    battery_gen[:,QC2MIN].=0
-    battery_gen[:,QC2MAX].=0
-    battery_gen[:,RAMP_AGC].=0
-    battery_gen[:,RAMP10].=0
-    battery_gen[:,RAMP30].=0
-    battery_gen[:,RAMP_Q].=0
-    battery_gen[:,APF].=0
+        #Create a battery generator
+        battery_gen=zeros(length(battery_inserviced),21)
+        battery_gen[:,GEN_BUS].=busdc[Int64.(map(k->Dict_busdc[k],battery_bus)),BUS_I]
+        battery_gen[:,PG].=0
+        battery_gen[:,QG].=0
+        battery_gen[:,QMAX].=300
+        battery_gen[:,QMIN].=-300
+        battery_gen[:,VG].=1
+        battery_gen[:,MBASE].=100
+        battery_gen[:,STATUS].=1
+        battery_gen[:,PMAX].=250
+        battery_gen[:,PMIN].=10
+        battery_gen[:,PC1].=0
+        battery_gen[:,PC2].=0
+        battery_gen[:,QC1MIN].=0
+        battery_gen[:,QC1MAX].=0
+        battery_gen[:,QC2MIN].=0
+        battery_gen[:,QC2MAX].=0
+        battery_gen[:,RAMP_AGC].=0
+        battery_gen[:,RAMP10].=0
+        battery_gen[:,RAMP30].=0
+        battery_gen[:,RAMP_Q].=0
+        battery_gen[:,APF].=0
+    else
+        battery_gen=zeros(0,21)
+        battery_branches=zeros(0,14)
+    end
 
 
     return busdc,dcload,Dict_busdc,battery_branches,battery_gen
@@ -174,10 +191,13 @@ function process_dcload_data(bus, DC_lumpedload,Dict_busdc,Cr,P_inv_dc)
                 bus[bus[:,BUS_I].==i,QD] .= dcload[idx,LOAD_QD]
 
             else
-                P_add=P_inv_dc[inverter_index.==i][1]./1000
+                P_add = P_inv_dc[inverter_index.==i][1]./1000
                 bus[bus[:,BUS_I].==i,PD] .= P_add
                 bus[bus[:,BUS_I].==i,QD] .= 0
-                vcat(dcload,[size(dcload,1)+1, i, 1, P_add, 0, 0, 0, 1]')
+                
+                # 创建新行并添加到 dcload
+                new_row = [size(dcload,1)+1, i, 1, P_add, 0, 0, 0, 1]'
+                dcload = vcat(dcload, new_row)
             end
         end
     end

@@ -11,18 +11,18 @@ VA, BASEKV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN)=PowerFlow.idx_bus(
 (load_EquipmentID,ConectedID,load_inservice,load_kva,load_pf,load_type,Pload_percent)=PowerFlow.load_idx()#负荷索引
 
 # Find in-service buses
-inservice = findall(bus_data[:, In_Service] .== "Yes")
+inservice = findall(bus_data[:, In_Service] .== "true")
 bus = zeros(length(inservice), 13)
 bus[:, BUS_I] .= 1:length(inservice)  # Assign new ID for all buses
 
 # Identify and assign PQ buses (type 1)
-PQindex = findall(bus_data[:, Bus_Type] .== 0)
+PQindex = findall(bus_data[:, Bus_Type] .== "0")
 bus[PQindex, TYPE] .= 1
 
 # Filter in-service load data
-Load_inservice = findall(load_data[:, load_inservice] .== "Yes")
+Load_inservice = findall(load_data[:, load_inservice] .== "true")
 load_data = load_data[Load_inservice, :]
-
+load_data=filter(row -> row[ConectedID] !== missing, load_data)
 # Create a dictionary to map EquipmentID to bus index
 bus_index = collect(1:size(bus_data[inservice, :], 1))
 dict_bus = Dict(zip(bus_data[inservice, EquipmentID], bus_index))
@@ -39,7 +39,7 @@ assign_load_data(bus, load_data, dict_bus)
 # Set voltage values and zone information
 bus[:, VM] .= 1.0  # Voltage magnitude
 bus[:, VA] .= 0    # Voltage angle
-bus[:, BASEKV] .= bus_data[inservice, Voltage] .* parse.(Float64, bus_data[inservice, Initial_Voltage]) ./ 100
+bus[:, BASEKV] .= parse.(Float64,bus_data[inservice, Voltage]) .* parse.(Float64, bus_data[inservice, Initial_Voltage]) ./ 100
 bus[:, ZONE] .= 1  # Zone set to 1 for all buses
 
 # Set maximum and minimum voltage limits
@@ -53,26 +53,28 @@ end
 function assign_pv_buses(bus, gen_data, dict_bus)
 #Call bus indexing function
 (Gen_connected_element,Gen_inservice,Gen_controlmode,
-Gen_power_rating,Gen_apparent_power_rating,Gen_voltage)=gen_idx() #发电机索引
+Gen_power_rating,Gen_apparent_power_rating,Gen_voltage)=PowerFlow.gen_idx() #发电机索引
 (PQ, PV, REF, NONE, BUS_I, TYPE, PD, QD, GS, BS, AREA, VM,
-VA, BASEKV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN)=idx_bus()
+VA, BASEKV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN)=PowerFlow.idx_bus()
 
 
 # Assign PV buses for generators
-geninservice = findall(gen_data[:, Gen_inservice] .== "Yes")
-gen_data = gen_data[geninservice, :]
-pv_index = findall(gen_data[:, Gen_controlmode] .== "Voltage Control")
-pv_bus = map(k -> dict_bus[k], gen_data[pv_index, Gen_connected_element])
-bus[pv_bus, TYPE] .= 2
+if !isempty(gen_data)
+    geninservice = findall(gen_data[:, Gen_inservice] .== "true")
+    gen_data = gen_data[geninservice, :]
+    pv_index = findall(gen_data[:, Gen_controlmode] .== "Voltage Control")
+    pv_bus = map(k -> dict_bus[k], gen_data[pv_index, Gen_connected_element])
+    bus[pv_bus, TYPE] .= 2
+end
 
 end
 
 # Function to assign Slack buses (type 3) based on utility data
 function assign_slack_buses(bus, utility_data, dict_bus)
 #Call bus indexing function
-(Utility_EquipmentID,Utility_connected_ID,Utility_Inservice,Utility_Voltage,Utility_control_mode)=utility_idx()#电网索引
+(Utility_EquipmentID,Utility_connected_ID,Utility_Inservice,Utility_Voltage,Utility_control_mode)=PowerFlow.utility_idx()#电网索引
 (PQ, PV, REF, NONE, BUS_I, TYPE, PD, QD, GS, BS, BUS_AREA, VM,VA, 
-    BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN, PER_CONSUMER) = idx_bus();
+    BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN, PER_CONSUMER) = PowerFlow.idx_bus();
 
 slack_index = findall(utility_data[:, Utility_control_mode] .== "Swing")
 slack_bus = map(k -> dict_bus[k], utility_data[slack_index, Utility_connected_ID])
@@ -83,12 +85,12 @@ end
 function assign_load_data(bus, load_data, dict_bus)
 #Call bus indexing function
 (PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM,VA, 
-    BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN, PER_CONSUMER) = idx_bus();
-(load_EquipmentID,ConectedID,load_inservice,load_kva,load_pf,load_type,Pload_percent)=load_idx()#负荷索引
+    BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN, PER_CONSUMER) = PowerFlow.idx_bus();
+(load_EquipmentID,ConectedID,load_inservice,load_kva,load_pf,load_type,Pload_percent)=PowerFlow.load_idx()#负荷索引
 
 load_connected_bus = map(k -> dict_bus[k], load_data[:, ConectedID])  # Searching the connected bus ID
-bus[load_connected_bus, PD] .= 0.001 .* load_data[:, load_kva] .* parse.(Float64, load_data[:, load_pf]) ./ 100
-bus[load_connected_bus, QD] .= 0.001 .* load_data[:, load_kva] .* sin.(acos.(parse.(Float64, load_data[:, load_pf]) ./ 100))
+bus[load_connected_bus, PD] .= 0.001 .* parse.(Float64,load_data[:, load_kva]) .* parse.(Float64, load_data[:, load_pf]) ./ 100
+bus[load_connected_bus, QD] .= 0.001 .* parse.(Float64,load_data[:, load_kva]) .* sin.(acos.(parse.(Float64, load_data[:, load_pf]) ./ 100))
 # if Ci !== nothing
 #     inverter_connected_bus = map(k -> dict_bus[k], Ci)
 #     bus[inverter_connected_bus, PD] .= bus[inverter_connected_bus, PD].-P_inv./1000

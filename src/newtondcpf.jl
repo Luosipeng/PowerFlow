@@ -1,5 +1,5 @@
 # Define the newtonpf function
-function newtondcpf(Ybus, Sbus, V0, ref, p, tol0, max_it0, alg="")
+function newtondcpf(baseMVA, bus, gen, load, Ybus, V0, ref, p, tol0, max_it0, alg="")
     tol = tol0
     max_it = max_it0
     lin_solver = Char[]
@@ -14,7 +14,7 @@ function newtondcpf(Ybus, Sbus, V0, ref, p, tol0, max_it0, alg="")
     np = length(p)
     j1 = 1; j2 = np; # j1:j2 - V angle of pv buses
     # Evaluate F(x0)
-    mis = V .* conj.(Ybus * V) - Sbus(V)
+    mis = V .* conj.(Ybus * V) - PowerFlow.makeSbus(baseMVA, bus, gen, V, load)
     F = real(mis[p])
      # Check tolerance
     normF = norm(F, Inf)
@@ -28,13 +28,16 @@ function newtondcpf(Ybus, Sbus, V0, ref, p, tol0, max_it0, alg="")
         i += 1
 
         # Evaluate Jacobian
-        dSbus_dVa, dSbus_dVm = dSbus_dV(Ybus, V)
+        dSbus_dVa, dSbus_dVm = PowerFlow.dSbus_dV(Ybus, V)
+        neg_dSd_dVm = PowerFlow.makeSbus(baseMVA, bus, gen, V, load, return_derivative=true)
+        dSbus_dVm .-= neg_dSd_dVm
 
         J = real(dSbus_dVm[p,p])
 
         # Compute update step
         # @time begin
-        dx, info = mplinsolve(J, -F, alg)
+        # dx, info = julinsolve(J, -F, alg)
+        dx = J \ -F
         
         # end
         #precision control
@@ -47,7 +50,7 @@ function newtondcpf(Ybus, Sbus, V0, ref, p, tol0, max_it0, alg="")
         
 
         # Evaluate F(x)
-        mis = V .* conj.(Ybus * V) - Sbus(V)
+        mis = V .* conj.(Ybus * V) - PowerFlow.makeSbus(baseMVA, bus, gen, V, load)
         F = real(mis[p])
 
         # Check for convergence
