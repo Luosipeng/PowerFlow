@@ -39,6 +39,9 @@ function excel2jpc(file_path)
         end
     end
 
+    #元件自检
+    PowerFlow.run_all_component_tests(file_path)
+    
     # 获取 HVCB 索引
     (HVCB_ID, HVCB_FROM_ELEMENT, HVCB_TO_ELEMENT, HVCB_INSERVICE, HVCB_STATUS) = PowerFlow.hvcb_idx()
 

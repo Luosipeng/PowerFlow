@@ -69,6 +69,7 @@ module PowerFlow
     include(joinpath(@__DIR__,"merge_results.jl"))
     include(joinpath(@__DIR__,"process_result.jl"))
     include(joinpath(@__DIR__,"process_charger_data.jl"))
+    include(joinpath(@__DIR__,"run_all_component_tests.jl"))
     # ... 其他 models 目录下的文件 ...
     include(joinpath(dirname(@__DIR__), "models","bus_idx.jl"))
     include(joinpath(dirname(@__DIR__), "models","gen_idx.jl"))
