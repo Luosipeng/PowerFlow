@@ -1,0 +1,57 @@
+JUPOWER Version 0.01, 26-Jun-2025
+Power Flow -- AC-polar-power formulation
+
+Newton's method converged in 3 iterations.
+PF successful
+
+Converged in 0.27300000190734863 seconds
+================================================================================
+|     System Summary                                                           |
+================================================================================
+
+How many?                How much?              P (MW)            Q (MVAr)
+---------------------    -------------------  -------------  -----------------
+Buses              5     Total Gen Capacity     9999.0       -9999.0 to  9999.0
+Generators         1     On-line Capacity       9999.0       -9999.0 to  9999.0
+Committed Gens     1     Generation (actual)       0.8                 0.5
+Loads              1     Load                      0.7                0.4
+  Fixed            1       Fixed                   0.7                0.4
+  Dispatchable     0       Dispatchable           0.0 of  0.0        0.0
+Shunts             0     Shunt (inj)               0.0                0.0
+Branches           2     Losses (I^2 * Z)         0.04              0.02
+Transformers       0     Branch Charging (inj)     -                0.0
+Inter-ties         0     Total Inter-tie Flow      0.0                0.0
+Areas              1
+
+                          Minimum                      Maximum
+                 -------------------------  --------------------------------
+Voltage Magnitude   0.953 p.u. @ bus   2         1.000 p.u. @ bus   1  
+Voltage Angle       -0.01 deg   @ bus   2          0.00 deg   @ bus   1  
+P Losses (I^2*R)             -                   0.04 MW    @ line 2-1
+Q Losses (I^2*X)             -                  0.02 MVAr  @ line 2-1
+
+================================================================================
+|     Bus Data                                                                 |
+================================================================================
+ Bus      Voltage          Generation             Load        
+  #   Mag(pu) Ang(deg)   P (MW)   Q (MVAr)   P (MW)   Q (MVAr)
+----- ------- --------  --------  --------  --------  --------
+    1  1.000    0.000       0.76       0.47      1.00      0.72 
+    2  0.953   -0.010          -          -      0.00      0.00 
+    3  0.953   -0.010          -          -      0.00      0.00 
+    4  0.000    0.000          -          -      0.00      0.00 
+    5  0.000    0.000          -          -      0.00      0.00 
+                        --------  --------  --------  --------
+               Total:      0.76      0.47      1.00      0.72
+
+================================================================================
+|     Branch Data                                                              |
+================================================================================
+Brnch   From   To    From Bus Injection   To Bus Injection     Loss (I^2 * Z)  
+  #     Bus    Bus    P (MW)   Q (MVAr)   P (MW)   Q (MVAr)   P (MW)   Q (MVAr)
+-----  -----  -----  --------  --------  --------  --------  --------  --------
+    1      2      1     -0.72     -0.45      0.76      0.47      0.04      0.02
+    2      3      2      0.00      0.00     -0.00     -0.00      0.00      0.00
+                                                             --------  --------
+                                                    Total:       0.04      0.02
+
