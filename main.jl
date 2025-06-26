@@ -2,13 +2,7 @@ using  Dates
 using  XLSX
 using  DataFrames
 using  Base.Threads
-# include(joinpath(dirname(dirname(@__DIR__)), "Utils", "Utils.jl"))
-# using .Utils
-
-include(joinpath(dirname(dirname(@__DIR__)), "PowerFlow", "PowerFlow.jl"))
-using .PowerFlow
-
-
+using PowerFlow
 
 # file_path = joinpath(pwd(), "data", "etap_runpf_acdc.xlsx")
 # file_path = joinpath(pwd(), "data", "control_mode_test.xlsx")
