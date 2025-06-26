@@ -1,2 +1,2 @@
-# This project is for college students innovation competition
+# This project is for the college students' innovation competition
 
