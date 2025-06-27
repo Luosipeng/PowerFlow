@@ -4,11 +4,8 @@ using  DataFrames
 using  Base.Threads
 
 using PowerFlow
-# file_path = joinpath(pwd(), "data", "etap_runpf_acdc.xlsx")
-# file_path = joinpath(pwd(), "data", "smart_inverter_test.xlsx")
-# file_path = "C:/Users/13733/Desktop/etap-main/parameters.xlsx"
-# file_path = "C:/Users/13733/Desktop/石桥F12草河F27交直流.xlsx"
-file_path = joinpath(pwd(), "data", "石桥F12草河F27未连接.xlsx")
+file_path = joinpath(pwd(), "data", "etap_runpf_acdc.xlsx")
+
 
 case = PowerFlow.load_julia_power_data(file_path)
 

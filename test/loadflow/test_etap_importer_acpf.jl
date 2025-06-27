@@ -2,13 +2,9 @@ using  Dates
 using  XLSX
 using  DataFrames
 using  Base.Threads
-
 using  PowerFlow
 
-# file_path = joinpath(pwd(), "data", "etap_runpf.xlsx")
-file_path =  joinpath(pwd(), "data", "交流光伏系统测试.xlsx")
-# file_path = joinpath(pwd(), "data", "石桥F12草河F27连接.xlsx")
-
+file_path = joinpath(pwd(), "data", "etap_runpf.xlsx")
 case = PowerFlow.load_julia_power_data(file_path)
 
 #拓扑处理
