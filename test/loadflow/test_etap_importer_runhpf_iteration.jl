@@ -2,8 +2,7 @@ using  Dates
 using  XLSX
 using  DataFrames
 using  Base.Threads
-using PowerFlow
-
+using  PowerFlow
 file_path = joinpath(pwd(), "data", "test_case.xlsx")
 case = PowerFlow.load_julia_power_data(file_path)
 

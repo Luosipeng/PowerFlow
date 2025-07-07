@@ -191,6 +191,7 @@ mutable struct JuliaPowerCase
     transformers_2w::Vector{Transformer2W}
     transformers_3w::Vector{Transformer3W}
     transformers_2w_etap::Vector{Transformer2Wetap}
+    
     charging_stations::Vector{ChargingStation}
     chargers::Vector{Charger}
     ev_aggregators::Vector{EVAggregator}
