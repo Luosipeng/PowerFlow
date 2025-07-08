@@ -191,7 +191,6 @@ mutable struct JuliaPowerCase
     transformers_2w::Vector{Transformer2W}
     transformers_3w::Vector{Transformer3W}
     transformers_2w_etap::Vector{Transformer2Wetap}
-    
     charging_stations::Vector{ChargingStation}
     chargers::Vector{Charger}
     ev_aggregators::Vector{EVAggregator}
@@ -260,6 +259,7 @@ mutable struct JPC
     storage::Array{Float64,2}       # Energy storage system data (indexed by idx_ess(), dimensions: n_ess × N_ESS_ATTR)
     sgenDC::Array{Float64,2}        # DC-connected PV data (indexed by idx_pv(), dimensions: n_dc_pv × N_PV_ATTR)
     pv::Array{Float64,2}          # PV array data (indexed by idx_pv_array(), dimensions: n_pv_array × N_PV_ARRAY_ATTR)
+    pv_acsystem::Array{Float64,2}  # AC PV systems data (indexed by idx_ac_pv_system(), dimensions: n_ac_pv_system × N_AC_PV_SYSTEM_ATTR)
     
     # Special Components
     converter::Array{Float64,2}     # AC/DC converter data (indexed by idx_conv(), dimensions: n_conv × N_CONV_ATTR)
@@ -287,6 +287,7 @@ mutable struct JPC
             Array{Float64}(undef, 0, 15),  # storage (N_ESS_ATTR = 15)
             Array{Float64}(undef, 0, 3),   # sgenDC (uses same structure as sgenAC)
             Array{Float64}(undef, 0, 9),  # pv (N_PV_ARRAY_ATTR = 10)
+            Array{Float64}(undef, 0, 15),  # pv_acsystem (N_AC_PV_SYSTEM_ATTR = 18)
             Array{Float64}(undef, 0, 18),  # converter (N_CONV_ATTR = 18)
             Array{Float64}(undef, 0, 13),  # ext_grid (N_EXT_GRID_ATTR = 13)
             Array{Float64}(undef, 0, 5),   # hvcb (N_HVCB_ATTR = 5)
@@ -341,6 +342,8 @@ function getindex(jpc::JPC, key::String)
         return jpc.sgenDC
     elseif key == "pv"
         return jpc.pv
+    elseif key == "pv_acsystem"
+        return jpc.pv_acsystem
     elseif key == "converter"
         return jpc.converter
     elseif key == "ext_grid"
@@ -398,6 +401,8 @@ function setindex!(jpc::JPC, value, key::String)
         jpc.sgenDC = value
     elseif key == "pv"
         jpc.pv = value
+    elseif key == "pv_acsystem"
+        jpc.pv_acsystem = value
     elseif key == "converter"
         jpc.converter = value
     elseif key == "ext_grid"

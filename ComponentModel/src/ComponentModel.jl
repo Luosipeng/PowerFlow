@@ -1,7 +1,7 @@
 """
 微电网系统数据结构定义
 """
-module Component_Model
+module ComponentModel
 
 using SparseArrays
 using DataFrames

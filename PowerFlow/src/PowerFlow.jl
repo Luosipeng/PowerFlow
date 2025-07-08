@@ -34,15 +34,13 @@ module PowerFlow
     # ...其他Utils目录下的文件...
     # include(joinpath(dirname(@__DIR__), "Utils","Utils.jl"))
     using Utils
-
-    const Component_Model = Utils.Component_Model
+    using Utils: JuliaPowerCase2Jpc,JuliaPowerCase2Jpc_3ph
+    const ComponentModel = Utils.ComponentModel
 
     # ... 其他直接在 src 下的文件 ...
 
     include(joinpath(@__DIR__,"bustypes.jl"))
     # include(joinpath(@__DIR__,"ext2int.jl"))
-    include(joinpath(@__DIR__,"juliapowercase2jpc.jl"))
-    include(joinpath(@__DIR__,"juliapowercase2jpc_3ph.jl"))
     include(joinpath(@__DIR__,"makeYbus.jl"))
     include(joinpath(@__DIR__,"newtonpf.jl"))
     include(joinpath(@__DIR__,"makeSbus.jl"))
@@ -62,12 +60,11 @@ module PowerFlow
     include(joinpath(@__DIR__,"build_bus.jl"))
     include(joinpath(@__DIR__,"build_gen.jl"))
     include(joinpath(@__DIR__,"build_load.jl"))
-    # include(joinpath(@__DIR__,"runtdpf.jl"))
-    # include(joinpath(@__DIR__,"topology_analysis.jl"))
+    include(joinpath(@__DIR__,"process_pv_acsystem.jl"))
     include(joinpath(@__DIR__,"adaptive_damped_newton.jl"))
     include(joinpath(@__DIR__,"currentinjectionpf.jl"))
     include(joinpath(@__DIR__,"newtondcpf_sp.jl"))
-    include(joinpath(@__DIR__,"runhpf_iteration.jl"))
+    include(joinpath(@__DIR__,"eliminate_element.jl"))
     # include(joinpath(@__DIR__,"run_single_day.jl"))
     # include(joinpath(@__DIR__,"run_dynamic_dispatch.jl"))
 

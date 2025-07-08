@@ -16,10 +16,15 @@ function runpf(mpc, opt::Dict{String})
     dc = opt["PF"]["DC"];  ## use DC formulation?  
     gpu_flag = opt["PF"]["GPU_ACCELERATION"];  ## use GPU acceleration?
     baseMVA = mpc["baseMVA"];
+    pv_acsystem = mpc["pv_acsystem"];
+    # process the pv_acsystem data,using a genAC to replace the pv_acsystem
+    mpc = PowerFlow.process_pv_acsystem(pv_acsystem, mpc)
     bus =  mpc["busAC"];
     gen = mpc["genAC"];
     branch = mpc["branchAC"];
     pvarray = mpc["pv"];
+    
+    # Process load data
     load = hasfield(typeof(mpc), :loadAC) ? getfield(mpc, :loadAC) : nothing
     if load === nothing || isempty(load)
         load = zeros(size(bus, 1), 12)
@@ -191,76 +196,9 @@ function runpf(mpc, opt::Dict{String})
         mpc["genAC"] = gen
         mpc["branchAC"] = branch
         mpc["loadAC"] = load
+
+        mpc =  PowerFlow.eliminate_element(mpc) # eliminate the pv_acsystem data
     
     return mpc
 end
 
-
-function runpf(mpc::JPC)
-    # Step 2.1: Define the data structures
-    # Define named indices into bus, gen, branch matrices
-    (PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM,
-        VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN) = idx_bus();
-        (F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, TAP, SHIFT, BR_STATUS, ANGMIN,
-    ANGMAX, DICTKEY, PF, QF, PT, QT, MU_SF, MU_ST, MU_ANGMIN, MU_ANGMAX, LAMBDA, SW_TIME, RP_TIME, BR_TYPE, BR_AREA) = idx_brch()
-         (GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS, PMAX, PMIN, PC1,
-         PC2, QC1MIN, QC1MAX, QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, 
-         RAMP_Q, APF, PW_LINEAR, POLYNOMIAL, MODEL, STARTUP, SHUTDOWN, NCOST,
-          COST, MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN,GEN_AREA) = idx_gen();
-    # Step 2.2: Convert the data into the required format
-    baseMVA = mpc["baseMVA"];
-    bus =  mpc["bus"];
-    gen = mpc["gen"];
-    branch = mpc["branch"];
-    #add zero columns to branch for flows if needed
-    if size(branch, 2) < QT
-        branch = [branch zeros(size(branch, 1), QT-size(branch, 2))]
-    end
-    # convert the external data to internal data 
-    (bus, gen, branch) = ext2int(bus, gen, branch);
-    ## get bus index lists of each type of bus
-    (ref, pv, pq) = bustypes(bus, gen);
-    ## generator info
-    on = findall(gen[:, GEN_STATUS] .> 0)  # which generators are on?
-    gbus = gen[on, GEN_BUS]  # what buses are they at?
-    # Step 2.3: Run the power flow
-    ##-----  run the power flow  ----- 
-    alg="NR";
-    solver = "Newton";
-    its = 0;            ## total iterations
-    # @printf(" -- AC Power Flow (%s)\n", solver);
-    ## initialize
-    V0  = bus[:, VM] .* exp.(1im * pi/180 * bus[:, VA])
-    vcb = ones(size(V0));           ## create mask of voltage-controlled buses
-    vcb[pq] .= 0;                    ## exclude PQ buses
-    gbus=Int.(gbus);
-    k = findall(Bool.(vcb[gbus]));            ## in-service gens at v-c buses
-    V0[gbus[k]] = gen[on[k], VG] ./ abs.(V0[gbus[k]]).* V0[gbus[k]];
-    ref0 = ref;                         ## save index and angle of
-    Varef0 = bus[ref0, VA];             ##   original reference bus(es)
-    ## build admittance matrices
-    (Ybus, Yf, Yt) = makeYbus(baseMVA, bus, branch);
-    ## function for computing V dependent complex bus power injections
-        ## (generation - load)
-    Sbus = Vm -> makeSbus(baseMVA, bus, gen, Vm);
-    ## run the power flow
-    V, success, iterations = newtonpf(Ybus, Sbus, V0, ref, pv, pq, 1.0000e-08, 10);
-    its += iterations;
-    ## update data matrices with solution
-    bus, gen, branch = pfsoln(baseMVA, bus, gen, branch, Ybus, Yf, Yt, V, ref, pv, pq);
-    if ref != ref0
-    ## adjust voltage angles to make original ref bus correct
-        bus[:, VA] = bus[:, VA] - bus[ref0, VA] + Varef0;
-    end
-    (bus, gen, branch) = ext2int(bus, gen, branch);
-    ## Step 2.4: -----  output results  -----
-    ## convert back to original bus numbering & print results
-    mpc["bus"] = bus
-    mpc["gen"] = gen
-    mpc["branch"] = branch
-    mpc["success"] = success
-    mpc["iterations"] = its
-    #comment: print the final voltage magnitudes
-    # print(mpc["bus"],its);
-    return mpc
-end

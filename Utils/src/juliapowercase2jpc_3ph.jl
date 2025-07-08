@@ -28,7 +28,7 @@ function JuliaPowerCase2Jpc_3ph(case::JuliaPowerCase)
 
 end
 
-function JPC_3ph_buses_process(case::JuliaPowerCase, jpc_3ph::PowerFlow.JPC_3ph)
+function JPC_3ph_buses_process(case::JuliaPowerCase, jpc_3ph::Utils.JPC_3ph)
     # 获取节点数据并深拷贝防止误操作
     buses = deepcopy(case.busesAC)
     
@@ -93,7 +93,7 @@ function JPC_3ph_buses_process(case::JuliaPowerCase, jpc_3ph::PowerFlow.JPC_3ph)
     return jpc_3ph
 end
 
-function JPC_3ph_branches_process(case::JuliaPowerCase, jpc_3ph::PowerFlow.JPC_3ph)
+function JPC_3ph_branches_process(case::JuliaPowerCase, jpc_3ph::Utils.JPC_3ph)
     # 计算线路参数
     calculate_3ph_line_parameters(case, jpc_3ph)
     # 计算变压器参数
@@ -104,7 +104,7 @@ function JPC_3ph_branches_process(case::JuliaPowerCase, jpc_3ph::PowerFlow.JPC_3
     return jpc_3ph
 end
 
-function calculate_3ph_line_parameters(case::JuliaPowerCase, jpc_3ph::PowerFlow.JPC_3ph)
+function calculate_3ph_line_parameters(case::JuliaPowerCase, jpc_3ph::Utils.JPC_3ph)
     # 处理线路数据，转换为JPC格式
     nbr = length(case.branchesAC)
     branch_1 = zeros(nbr, 14)  # 正序分量
@@ -189,7 +189,7 @@ function calculate_3ph_line_parameters(case::JuliaPowerCase, jpc_3ph::PowerFlow.
     jpc_3ph.branchAC_2 = branch_2  # 负序分量
 end
 
-function calculate_3ph_transformer2w_parameters(case::JuliaPowerCase, jpc_3ph::PowerFlow.JPC_3ph)
+function calculate_3ph_transformer2w_parameters(case::JuliaPowerCase, jpc_3ph::Utils.JPC_3ph)
     # 处理变压器数据，转换为JPC格式
     transformers = case.transformers_2w_etap
     nbr = length(transformers)
@@ -307,7 +307,7 @@ function calculate_3ph_transformer2w_parameters(case::JuliaPowerCase, jpc_3ph::P
     end
 end
 
-function calculate_branch_JPC_zero(case::JuliaPowerCase, jpc_3ph::PowerFlow.JPC_3ph)
+function calculate_branch_JPC_zero(case::JuliaPowerCase, jpc_3ph::Utils.JPC_3ph)
     # 初始化分支数据矩阵
     nbr = length(case.branchesAC)
     branch = zeros(nbr, 14)
@@ -334,7 +334,7 @@ function calculate_branch_JPC_zero(case::JuliaPowerCase, jpc_3ph::PowerFlow.JPC_
     return jpc_3ph
 end
 
-function add_line_sc_impedance_zero(case::JuliaPowerCase, jpc_3ph::PowerFlow.JPC_3ph, branch)
+function add_line_sc_impedance_zero(case::JuliaPowerCase, jpc_3ph::Utils.JPC_3ph, branch)
     # 检查是否有线路数据
     if isempty(case.branchesAC)
         return
@@ -388,7 +388,7 @@ function add_line_sc_impedance_zero(case::JuliaPowerCase, jpc_3ph::PowerFlow.JPC
     return branch  # 返回更新后的branch矩阵
 end
 
-function add_trafo_sc_impedance_zero(case::JuliaPowerCase, jpc_3ph::PowerFlow.JPC_3ph, branch)
+function add_trafo_sc_impedance_zero(case::JuliaPowerCase, jpc_3ph::Utils.JPC_3ph, branch)
     # 处理二绕组ETAP变压器的零序阻抗
     transformers = case.transformers_2w_etap
     
@@ -562,7 +562,7 @@ function add_trafo_sc_impedance_zero(case::JuliaPowerCase, jpc_3ph::PowerFlow.JP
     return branch  # 返回更新后的branch矩阵
 end
 
-function JPC_3ph_gens_process(case::JuliaPowerCase, jpc_3ph::PowerFlow.JPC_3ph)
+function JPC_3ph_gens_process(case::JuliaPowerCase, jpc_3ph::Utils.JPC_3ph)
     # 统计各类发电设备数量
     n_gen = length(case.gensAC)
     n_sgen = length(case.sgensAC)
@@ -773,7 +773,7 @@ function JPC_3ph_gens_process(case::JuliaPowerCase, jpc_3ph::PowerFlow.JPC_3ph)
     end
 end
 
-function JPC_3ph_loads_process(case::JuliaPowerCase, jpc_3ph::PowerFlow.JPC_3ph)
+function JPC_3ph_loads_process(case::JuliaPowerCase, jpc_3ph::Utils.JPC_3ph)
     # 处理负荷数据，转换为三相JPC格式并更新busAC的PD和QD
     
     # 过滤出投运的负荷
@@ -923,7 +923,7 @@ function JPC_3ph_loads_process(case::JuliaPowerCase, jpc_3ph::PowerFlow.JPC_3ph)
     end
 end
 
-function JPC_3ph_add_grid_external_sc_impedance(case::JuliaPowerCase, jpc_3ph::PowerFlow.JPC_3ph, sequence::Int)    
+function JPC_3ph_add_grid_external_sc_impedance(case::JuliaPowerCase, jpc_3ph::Utils.JPC_3ph, sequence::Int)    
     # 如果没有外部电网，返回空数组和原始jpc_3ph
     if isempty(case.ext_grids)
         return jpc_3ph, Float64[], Float64[]

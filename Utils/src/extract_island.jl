@@ -240,6 +240,38 @@ function extract_islands(jpc::JPC)
             end
         end
         
+        # 找出连接到岛屿i中母线的光伏系统
+        ipv = Int[]
+        if isdefined(jpc, :pv) && size(jpc.pv, 1) > 0
+            for j in 1:size(jpc.pv, 1)
+                pv_bus = Int(jpc.pv[j, 2])  # 假设第二列是母线编号
+                if pv_bus in b_external
+                    # 如果有状态字段，检查设备是否在运行
+                    is_in_service = size(jpc.pv, 2) >= 9 ? jpc.pv[j, 9] == 1 : true
+                    
+                    if is_in_service
+                        push!(ipv, j)
+                    end
+                end
+            end
+        end
+        
+        # 找出连接到岛屿i中母线的交流光伏系统
+        ipv_ac = Int[]
+        if isdefined(jpc, :pv_acsystem) && size(jpc.pv_acsystem, 1) > 0
+            for j in 1:size(jpc.pv_acsystem, 1)
+                pv_bus = Int(jpc.pv_acsystem[j, 2])  # 假设第二列是母线编号
+                if pv_bus in b_external
+                    # 如果有状态字段(假设是第9列)，检查设备是否在运行
+                    is_in_service = size(jpc.pv_acsystem, 2) >= 9 ? jpc.pv_acsystem[j, 9] == 1 : true
+                    
+                    if is_in_service
+                        push!(ipv_ac, j)
+                    end
+                end
+            end
+        end
+        
         # 创建这个岛屿的JPC副本
         jpck = JPC(jpc.version, jpc.baseMVA)
         
@@ -306,6 +338,30 @@ function extract_islands(jpc::JPC)
         
         if !isempty(img)
             jpck.microgrid = jpc.microgrid[img, :]
+        end
+        
+        # 复制光伏数据
+        if !isempty(ipv) && isa(jpc.pv, Array)
+            jpck.pv = jpc.pv[ipv, :]
+        else
+            # 如果没有光伏设备连接到这个岛屿，创建一个空数组
+            if isa(jpc.pv, Array)
+                jpck.pv = similar(jpc.pv, 0, size(jpc.pv, 2))
+            else
+                jpck.pv = deepcopy(jpc.pv)  # 如果pv不是数组，直接复制
+            end
+        end
+        
+        # 复制交流光伏系统数据
+        if !isempty(ipv_ac) && isdefined(jpc, :pv_acsystem)
+            jpck.pv_acsystem = jpc.pv_acsystem[ipv_ac, :]
+        else
+            # 如果没有交流光伏系统连接到这个岛屿，创建一个空数组
+            if isdefined(jpc, :pv_acsystem) && isa(jpc.pv_acsystem, Array)
+                jpck.pv_acsystem = similar(jpc.pv_acsystem, 0, size(jpc.pv_acsystem, 2))
+            elseif isdefined(jpc, :pv_acsystem)
+                jpck.pv_acsystem = deepcopy(jpc.pv_acsystem)  # 如果pv_acsystem不是数组，直接复制
+            end
         end
         
         push!(jpc_list, jpck)
@@ -583,6 +639,22 @@ function extract_islands_acdc(jpc::JPC)
             end
         end
         
+        # 找出连接到岛屿i中母线的交流光伏系统
+        ipv_ac = Int[]
+        if isdefined(jpc, :pv_acsystem) && size(jpc.pv_acsystem, 1) > 0
+            for j in 1:size(jpc.pv_acsystem, 1)
+                pv_bus = Int(jpc.pv_acsystem[j, PV_AC_BUS])  # 使用PV_AC_BUS常量获取母线编号
+                if pv_bus in b_external_ac
+                    # 如果有状态字段，检查设备是否在运行
+                    is_in_service = jpc.pv_acsystem[j, PV_AC_IN_SERVICE] == 1
+                    
+                    if is_in_service
+                        push!(ipv_ac, j)
+                    end
+                end
+            end
+        end
+        
         # 找出连接到岛屿i中母线的灵活负载
         ild_flex = Int[]
         if size(jpc.loadAC_flex, 1) > 0
@@ -650,7 +722,7 @@ function extract_islands_acdc(jpc::JPC)
             end
         end
         
-        # 找出连接到岛屿i中DC母线的储能系统 - 修改部分开始
+        # 找出连接到岛屿i中DC母线的储能系统
         istorage = Int[]
         if size(jpc.storage, 1) > 0
             # 确定储能系统连接的DC母线编号所在的列索引
@@ -672,7 +744,6 @@ function extract_islands_acdc(jpc::JPC)
                 end
             end
         end
-        # 修改部分结束
         
         # 找出连接到岛屿i中母线的外部电网
         iext = Int[]
@@ -757,7 +828,7 @@ function extract_islands_acdc(jpc::JPC)
             jpck.loadDC = deepcopy(jpc.loadDC[ild_dc, :])
         end
         
-        # 复制光伏数据 - 修复后的代码
+        # 复制光伏数据
         if !isempty(ipv) && isa(jpc.pv, Array)
             jpck.pv = deepcopy(jpc.pv[ipv, :])
         else
@@ -766,6 +837,18 @@ function extract_islands_acdc(jpc::JPC)
                 jpck.pv = similar(jpc.pv, 0, size(jpc.pv, 2))
             else
                 jpck.pv = deepcopy(jpc.pv)  # 如果pv不是数组，直接复制
+            end
+        end
+        
+        # 复制交流光伏系统数据
+        if !isempty(ipv_ac) && isdefined(jpc, :pv_acsystem)
+            jpck.pv_acsystem = deepcopy(jpc.pv_acsystem[ipv_ac, :])
+        else
+            # 如果没有交流光伏系统连接到这个岛屿，创建一个空数组
+            if isdefined(jpc, :pv_acsystem) && isa(jpc.pv_acsystem, Array)
+                jpck.pv_acsystem = similar(jpc.pv_acsystem, 0, size(jpc.pv_acsystem, 2))
+            elseif isdefined(jpc, :pv_acsystem)
+                jpck.pv_acsystem = deepcopy(jpc.pv_acsystem)  # 如果pv_acsystem不是数组，直接复制
             end
         end
         
@@ -833,10 +916,7 @@ function extract_islands_acdc(jpc::JPC)
         end
     end
 
-
     return jpc_list, isolated
 end
-
-
 
 

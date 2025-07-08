@@ -74,7 +74,7 @@ function options(; kwargs...)
     return options
 end
 
-# function Powerflow_config(; kwargs...)
+# function PowerFlow_config(; kwargs...)
 #     # Define the default options vector
 #     PF = Dict(
 #         # Power flow options

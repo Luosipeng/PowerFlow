@@ -23,7 +23,7 @@ module Utils
     using Test
 
     # include(joinpath(dirname(@__DIR__), "Component_Model","Component_Model.jl"))
-    using Component_Model
+    using ComponentModel
 
     # main module
     include(joinpath(@__DIR__,"idx.jl"))
@@ -34,6 +34,8 @@ module Utils
     include(joinpath(@__DIR__,"topology_analysis.jl"))
     include(joinpath(@__DIR__,"extract_data.jl"))
     include(joinpath(@__DIR__,"extract_island.jl"))
+    include(joinpath(@__DIR__,"juliapowercase2jpc.jl"))
+    include(joinpath(@__DIR__,"juliapowercase2jpc_3ph.jl"))
 
     # module in ios
     include(joinpath(dirname(@__DIR__), "ios","ETAPImporter.jl"))
@@ -81,6 +83,11 @@ module Utils
     # Export PV indices
     const PV_ID,PV_BUS,PV_VOC,PV_VMPP,PV_ISC,PV_IMPP,PV_IRRADIANCE,PV_AREA,PV_IN_SERVICE = idx_pv()
     export PV_ID,PV_BUS,PV_VOC,PV_VMPP,PV_ISC,PV_IMPP,PV_IRRADIANCE,PV_AREA,PV_IN_SERVICE
+
+    # Export PV AC system indices
+    const PV_AC_ID, PV_AC_BUS, PV_AC_VOC, PV_AC_VMPP, PV_AC_ISC, PV_AC_IMPP, PV_AC_IRRADIANCE, PV_AC_INVERTER_EFFICIENCY, PV_AC_INVERTER_MODE, PV_AC_INVERTER_PAC, PV_AC_INVERTER_QAC, PV_AC_INVERTER_QAC_MAX, PV_AC_INVERTER_QAC_MIN, PV_AC_AREA, PV_AC_IN_SERVICE = idx_pv_acsystem()
+    export PV_AC_ID, PV_AC_BUS, PV_AC_VOC, PV_AC_VMPP, PV_AC_ISC, PV_AC_IMPP, PV_AC_IRRADIANCE, PV_AC_INVERTER_EFFICIENCY, PV_AC_INVERTER_MODE, PV_AC_INVERTER_PAC, PV_AC_INVERTER_QAC, PV_AC_INVERTER_QAC_MAX, PV_AC_INVERTER_QAC_MIN, PV_AC_AREA, PV_AC_IN_SERVICE
+
 
     # Export Converter indices
     const CONV_ACBUS,CONV_DCBUS,CONV_INSERVICE,CONV_P_AC,CONV_Q_AC,CONV_P_DC,CONV_EFF,CONV_MODE,CONV_DROOP_KP = idx_conv()

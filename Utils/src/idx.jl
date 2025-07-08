@@ -195,6 +195,25 @@ function idx_pv()
     return PV_ID,PV_BUS,PV_VOC,PV_VMPP,PV_ISC,PV_IMPP,PV_IRRADIANCE,PV_AREA,PV_IN_SERVICE
 end
 
+function idx_pv_acsystem()
+    PV_AC_ID=1;
+    PV_AC_BUS=2;
+    PV_AC_VOC=3;
+    PV_AC_VMPP=4;
+    PV_AC_ISC =5;
+    PV_AC_IMPP=6;
+    PV_AC_IRRADIANCE=7; # PV irradiance in W/m^2
+    PV_AC_INVERTER_EFFICIENCY=8; # Inverter efficiency, typically a value between 0 and 1
+    PV_AC_INVERTER_MODE=9; 
+    PV_AC_INVERTER_PAC=10; # Active power output of the inverter in MW
+    PV_AC_INVERTER_QAC=11; # Reactive power output of the inverter in MVAr
+    PV_AC_INVERTER_QAC_MAX=12; # Maximum reactive power output of the inverter in MVAr
+    PV_AC_INVERTER_QAC_MIN=13; # Minimum reactive power output of the inverter in MVAr
+    PV_AC_AREA=14;
+    PV_AC_IN_SERVICE=15;
+    return PV_AC_ID, PV_AC_BUS, PV_AC_VOC, PV_AC_VMPP, PV_AC_ISC, PV_AC_IMPP, PV_AC_IRRADIANCE, PV_AC_INVERTER_EFFICIENCY, PV_AC_INVERTER_MODE, PV_AC_INVERTER_PAC, PV_AC_INVERTER_QAC, PV_AC_INVERTER_QAC_MAX, PV_AC_INVERTER_QAC_MIN, PV_AC_AREA, PV_AC_IN_SERVICE
+end
+
 function idx_conv()
     CONV_ACBUS=1;
     CONV_DCBUS=2;

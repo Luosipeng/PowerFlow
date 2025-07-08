@@ -158,3 +158,26 @@ mutable struct ACPVSystem <: AbstractComponent
     end
 
 end
+
+# 储能结构
+mutable struct StorageAC <: AbstractComponent
+    index::Int
+    name::String
+    bus::Int
+    power_capacity_mw::Float64
+    energy_capacity_mwh::Float64
+    soc_init::Float64
+    min_soc::Float64
+    max_soc::Float64
+    efficiency::Float64
+    in_service::Bool
+    type::String
+    controllable::Bool
+    
+    # 构造函数
+    function StorageAC(index, name, bus, power_capacity_mw, energy_capacity_mwh, soc_init,
+                     min_soc, max_soc, efficiency, in_service, type, controllable)
+        return new(index, name, bus, power_capacity_mw, energy_capacity_mwh, soc_init,
+                  min_soc, max_soc, efficiency, in_service, type, controllable)
+    end
+end

@@ -600,7 +600,7 @@ function write_branch_data(f::IOStream, mpc::JPC)
     """
     将潮流计算结果格式化为MATPOWER风格的报告并保存为文本文件
     """
-    function generate_matpower_report(mpc::JPC, area, execution_time, isolated, output_file::String="powerflow_report.txt")
+    function generate_matpower_report(mpc::JPC, area, execution_time, isolated, output_file::String="PowerFlow_report.txt")
         # 打开文件用于写入
         open(output_file, "w") do f
             # 写入报告头部
